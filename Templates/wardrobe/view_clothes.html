@@ -1,0 +1,57 @@
+<h2>My Wardrobe</h2>
+
+<form method="get">
+    Category:
+    <select name="category">
+        <option value="">All</option>
+        {% for c in categories %}
+            <option value="{{ c.id }}">{{ c.name }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Filter</button>
+</form>
+
+<hr>
+
+{% for item in items %}
+<div style="border:1px solid #ccc; padding:10px; margin-bottom:10px;">
+
+    {% if item.image %}
+        <img src="{{ item.image.url }}" width="120"><br>
+    {% endif %}
+
+    <b>{{ item.item_type }}</b><br>
+    Category: {{ item.category.name }}<br>
+    Color: {{ item.color }}<br>
+
+    Wear Count: {{ item.wear_count }}<br>
+
+    Status:
+    {% if item.clean_status %}
+        <span style="color:green;">Clean</span>
+    {% else %}
+        <span style="color:red;">Needs Laundry</span>
+    {% endif %}
+
+    <br><br>
+
+    <!-- MARK AS WORN -->
+    {% if item.clean_status %}
+        <a href="{% url 'mark_as_worn' item.id %}">
+            <button>Mark as Worn</button>
+        </a>
+    {% else %}
+        <button disabled>Dirty</button>
+    {% endif %}
+
+    <!-- SEND TO LAUNDRY -->
+    {% if not item.clean_status %}
+        <a href="{% url 'send_to_laundry' item.id %}">
+            <button style="margin-left:10px;">Send to Laundry</button>
+        </a>
+    {% endif %}
+
+</div>
+{% empty %}
+<p>No clothes added yet.</p>
+{% endfor %}

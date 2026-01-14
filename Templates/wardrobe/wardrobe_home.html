@@ -1,0 +1,16 @@
+<h2>My Wardrobe</h2>
+
+<a href="{% url 'add_wardrobe' %}">Add Wardrobe Item</a>
+
+<ul>
+{% for item in items %}
+  <li>
+    {{ item.item_type }} ({{ item.category }}) - {{ item.color }}
+    <a href="{% url 'delete_wardrobe' item.id %}">Delete</a>
+  </li>
+{% empty %}
+  <li>No wardrobe items</li>
+{% endfor %}
+</ul>
+
+<a href="{% url 'user_home' %}">Back</a>

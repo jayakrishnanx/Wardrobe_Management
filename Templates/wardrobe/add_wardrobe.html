@@ -1,0 +1,40 @@
+<h2>Add Wardrobe Item</h2>
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+
+  Item Type:
+  <input type="text" name="item_type"><br><br>
+
+  Category:
+  <select name="category">
+    {% for c in categories %}
+      <option value="{{ c.id }}">{{ c.name }}</option>
+    {% endfor %}
+  </select><br><br>
+
+  Color:
+  <input type="text" name="color"><br><br>
+
+  Occasion:
+  <select name="occasion">
+    {% for o in occasions %}
+      <option value="{{ o.id }}">{{ o.name }}</option>
+    {% endfor %}
+  </select><br><br>
+
+  Season:
+  <select name="season">
+    {% for s in seasons %}
+      <option value="{{ s.id }}">{{ s.name }}</option>
+    {% endfor %}
+  </select><br><br>
+
+  Image:
+<input type="file" name="image"><br><br>
+
+
+  <button type="submit">Add</button>
+</form>
+
+<a href="{% url 'wardrobe_home' %}">Back</a>

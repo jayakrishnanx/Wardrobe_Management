@@ -1,3 +1,5 @@
 from django.contrib import admin
+from .models import OutfitRecommendation, AccessoryRecommendation
 
-# Register your models here.
+admin.site.register(OutfitRecommendation)
+admin.site.register(AccessoryRecommendation)

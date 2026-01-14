@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Home</title>
+</head>
+<body>
+    <h2>Welcome, {{ request.user.username }}</h2>
+
+    <ul>
+        <li><a href="/recommendations/recommend/">Get Outfit Recommendation</a></li>
+        <li><a href="{% url 'wardrobe_home' %}">Manage Wardrobe</a></li>
+        <li><a href="{% url 'view_clothes' %}">View Clothes</a></li>
+        <li><a href="{% url 'wardrobe_home' %}">Shop Accessories</a></li>
+        <li><a href="#">View Orders</a></li>
+        <li><a href="{% url 'user_logout' %}">Logout</a></li>
+    </ul>
+</body>
+</html>

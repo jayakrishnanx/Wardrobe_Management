@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supplier Accessories</title>
+</head>
+<body>
+    <h2>Your Accessories</h2>
+
+    {% for a in accessories %}
+        <p>
+            {{ a.accessory_type }} |
+            {{ a.color }} |
+            ₹{{ a.price }} |
+            Stock: {{ a.stock }}
+        </p>
+    {% empty %}
+        <p>No accessories added yet.</p>
+    {% endfor %}
+
+</body>
+</html>

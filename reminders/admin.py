@@ -1,3 +1,5 @@
 from django.contrib import admin
+from .models import LaundryReminder, OccasionEvent
 
-# Register your models here.
+admin.site.register(LaundryReminder)
+admin.site.register(OccasionEvent)

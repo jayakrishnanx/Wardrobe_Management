@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+</head>
+<body>
+
+<h2>Admin Dashboard</h2>
+
+<ul>
+    <li>Total Users: {{ total_users }}</li>
+    <li>Total Suppliers: {{ total_suppliers }}</li>
+    <li>Total Accessories: {{ total_accessories }}</li>
+    <li>Total Orders: {{ total_orders }}</li>
+    <li>Total Recommendations: {{ total_recommendations }}</li>
+</ul>
+
+<hr>
+
+<h3>Admin Functions</h3>
+
+<ul>
+    <li><a href="/admin/accounts/customuser/">Manage Users</a></li>
+    <li><a href="/admin/accessories/accessory/">Manage Accessories</a></li>
+    <li><a href="/admin/orders/order/">View Orders</a></li>
+    <li><a href="/admin/recommendations/outfitrecommendation/">View Recommendations</a></li>
+</ul>
+
+<br>
+<a href="{% url 'user_logout' %}">Logout</a>
+
+</body>
+</html>
