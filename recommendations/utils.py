@@ -2,53 +2,106 @@ from wardrobe.models import WardrobeItem
 from accessories.models import Accessory
 from .models import OutfitRecommendation, AccessoryRecommendation
 
+import os
+import joblib
 
 # ==========================================================
-# 🎨 COLOR GROUPS (GENERIC)
+# 📁 BASE DIRECTORY
 # ==========================================================
 
-NEUTRALS = {'black', 'white', 'gray', 'beige', 'cream'}
-STRONG_COLORS = {'red', 'green', 'yellow'}
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Treat ALL blues as one family
-BLUE_FAMILY = {'blue', 'light blue', 'dark blue', 'navy'}
-DENIM = {'blue', 'light blue', 'dark blue', 'navy', 'black'}
+# ==========================================================
+# 🤖 LOAD ML FILES (REQUIRED FOR ML MODE)
+# ==========================================================
 
-# ❌ UNIVERSAL CLASHES
-BAD_COMBOS = {
-    ('red', 'green'),
-    ('green', 'red'),
-    ('blue', 'green'),
-    ('green', 'blue'),
-    ('black', 'green'),
-    ('green', 'black'),
-    ('white', 'green'),
-    ('green', 'white'),
+MODEL_PATH = os.path.join(BASE_DIR, "fashion_model.pkl")
+COLOR_ENCODER_PATH = os.path.join(BASE_DIR, "color_encoder.pkl")
+LABEL_ENCODER_PATH = os.path.join(BASE_DIR, "label_encoder.pkl")
+
+model = None
+color_encoder = None
+label_encoder = None
+
+if (
+    os.path.exists(MODEL_PATH)
+    and os.path.exists(COLOR_ENCODER_PATH)
+    and os.path.exists(LABEL_ENCODER_PATH)
+):
+    model = joblib.load(MODEL_PATH)
+    color_encoder = joblib.load(COLOR_ENCODER_PATH)
+    label_encoder = joblib.load(LABEL_ENCODER_PATH)
+
+# ==========================================================
+# 🔢 LABEL → SCORE
+# ==========================================================
+
+LABEL_TO_SCORE = {
+    "bad": 0.25,
+    "average": 0.50,
+    "good": 0.70,
+    "excellent": 0.85,
 }
 
+# ==========================================================
+# 🎨 NORMALIZE COLOR (FOR ML CONSISTENCY)
+# ==========================================================
+
+def normalize_color(color):
+    if not color:
+        return ""
+    return color.lower().strip()
+
+# ==========================================================
+# 🧠 ML-ONLY MATCH SCORE
+# ==========================================================
+
+def calculate_match_score(top, bottom):
+    if not (model and color_encoder and label_encoder):
+        return 0.40  # fallback if ML missing
+
+    top_color = normalize_color(top.color)
+    bottom_color = normalize_color(bottom.color)
+
+    # Handle unseen colors safely
+    if (
+        top_color not in color_encoder.classes_
+        or bottom_color not in color_encoder.classes_
+    ):
+        return 0.40
+
+    top_encoded = color_encoder.transform([top_color])[0]
+    bottom_encoded = color_encoder.transform([bottom_color])[0]
+
+    prediction = model.predict([[top_encoded, bottom_encoded]])[0]
+    label = label_encoder.inverse_transform([prediction])[0]
+
+    return LABEL_TO_SCORE.get(label, 0.40)
+
+# ==========================================================
+# 🏷️ SCORE → LABEL (UI)
+# ==========================================================
+
+def score_to_label(score):
+    if score >= 0.80:
+        return "Excellent"
+    if score >= 0.65:
+        return "Good"
+    if score >= 0.45:
+        return "Average"
+    return "Bad"
 
 # ==========================================================
 # 👕 OUTFIT GENERATION
 # ==========================================================
 
-def generate_outfit_recommendations(user, occasion_id=None, season_id=None):
+def generate_outfit_recommendations(user):
     tops = WardrobeItem.objects.filter(
-        user=user,
-        category__name__iexact='top'
+        user=user, category__name__iexact="top"
     )
-
     bottoms = WardrobeItem.objects.filter(
-        user=user,
-        category__name__iexact='bottom'
+        user=user, category__name__iexact="bottom"
     )
-
-    if occasion_id:
-        tops = tops.filter(occasion_id=occasion_id)
-        bottoms = bottoms.filter(occasion_id=occasion_id)
-
-    if season_id:
-        tops = tops.filter(season_id=season_id)
-        bottoms = bottoms.filter(season_id=season_id)
 
     for top in tops:
         for bottom in bottoms:
@@ -58,118 +111,31 @@ def generate_outfit_recommendations(user, occasion_id=None, season_id=None):
                 user=user,
                 top_item=top,
                 bottom_item=bottom,
-                defaults={'match_score': score}
+                defaults={"match_score": score},
             )
 
-
 # ==========================================================
-# 🧠 MATCH SCORE LOGIC (GENERIC & SCALABLE)
-# ==========================================================
-
-def normalize_color(color):
-    if not color:
-        return ''
-    c = color.lower()
-    if 'blue' in c:
-        return 'blue'
-    if 'black' in c:
-        return 'black'
-    if 'white' in c:
-        return 'white'
-    if 'green' in c:
-        return 'green'
-    if 'red' in c:
-        return 'red'
-    return c
-
-
-def calculate_match_score(top, bottom):
-    top_color = normalize_color(top.color)
-    bottom_color = normalize_color(bottom.color)
-
-    # 🚫 HARD BLOCK — NEVER RECOVER
-    if (top_color, bottom_color) in BAD_COMBOS:
-        return 0.25  # BAD
-
-    score = 0.0
-
-    # ⭐ EXCELLENT: TONAL BLUE / DENIM (YOUR CASE)
-    if top_color == 'blue' and bottom_color == 'blue':
-        score = 0.85
-
-    # ⭐ EXCELLENT: NEUTRAL HIGH CONTRAST
-    elif top_color in NEUTRALS and bottom_color in NEUTRALS:
-        score = 0.80
-
-    # ⭐ EXCELLENT: MONOCHROME NEUTRAL
-    elif top_color == bottom_color and top_color in NEUTRALS:
-        score = 0.85
-
-    # ✅ GOOD: Neutral + Denim
-    elif top_color in NEUTRALS and bottom_color in DENIM:
-        score = 0.65
-
-    # ⚠️ AVERAGE: One neutral
-    elif top_color in NEUTRALS or bottom_color in NEUTRALS:
-        score = 0.50
-
-    # ❌ Weak strong-on-strong
-    elif top_color in STRONG_COLORS and bottom_color in STRONG_COLORS:
-        score = 0.30
-
-    else:
-        score = 0.40
-
-    # 🧼 Cleanliness (minor influence)
-    if top.clean_status and bottom.clean_status:
-        score += 0.10
-    else:
-        score -= 0.10
-
-    return round(max(0.0, min(score, 1.0)), 2)
-
-
-# ==========================================================
-# 🏷️ SCORE → LABEL (UI)
+# 🎒 ACCESSORY RECOMMENDATION (UNCHANGED)
 # ==========================================================
 
-def score_to_label(score):
-    if score >= 0.75:
-        return "Excellent"
-    elif score >= 0.60:
-        return "Good"
-    elif score >= 0.40:
-        return "Average"
-    else:
-        return "Bad"
-
-
-# ==========================================================
-# 🎒 ACCESSORIES
-# ==========================================================
-
-def recommend_accessories(outfit, top, bottom, occasion_id=None, season_id=None):
-    accessories = Accessory.objects.filter(is_active=True, stock__gt=0)
+def recommend_accessories(outfit, top, bottom):
+    accessories = Accessory.objects.filter(
+        is_active=True, stock__gt=0
+    )
 
     for accessory in accessories:
         score = 0.0
 
         if accessory.color:
-            acc_color = accessory.color.lower()
-            if top.color and acc_color in top.color.lower():
+            c = accessory.color.lower()
+            if top.color and c in top.color.lower():
                 score += 0.4
-            if bottom.color and acc_color in bottom.color.lower():
+            if bottom.color and c in bottom.color.lower():
                 score += 0.4
-
-        if occasion_id and (accessory.occasion_id == occasion_id or accessory.occasion_id is None):
-            score += 0.2
-
-        if season_id and (accessory.season_id == season_id or accessory.season_id is None):
-            score += 0.2
 
         if score >= 0.4:
             AccessoryRecommendation.objects.create(
                 outfit=outfit,
                 accessory=accessory,
-                score=round(score, 2)
+                score=round(score, 2),
             )
