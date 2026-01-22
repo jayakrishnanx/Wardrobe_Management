@@ -1,41 +1,50 @@
-<h2>My Wardrobe</h2>
+{% extends 'user/base_dashboard.html' %}
 
-<a href="{% url 'add_wardrobe' %}">Add Wardrobe Item</a>
+{% block content %}
+<div class="page-header fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="page-title">📂 Manage Wardrobe</h2>
+        <a href="{% url 'add_wardrobe' %}" class="btn btn-primary">+ Add Item</a>
+    </div>
+</div>
 
-<ul>
-{% for item in items %}
-  <li style="margin-bottom:15px;">
-    
-    {% if item.image %}
-      <img src="{{ item.image.url }}"
-           alt="Wardrobe Image"
-           width="100"
-           height="100"
-           style="object-fit:cover; border:1px solid #ccc; margin-right:10px;">
-    {% endif %}
-
-    <strong>{{ item.item_type }}</strong>
-    ({{ item.category }}) |
-    Color: {{ item.color }} |
-    Worn: {{ item.wear_count }} times |
-    Status:
-    {% if item.clean_status %}
-        Clean
-    {% else %}
-        Needs Laundry
-    {% endif %}
-
-    <br>
-
-    |
-    <a href="{% url 'delete_wardrobe' item.id %}"
-       onclick="return confirm('Are you sure you want to delete this wardrobe item?');">
-        Delete
-    </a>
-  </li>
-{% empty %}
-  <li>No wardrobe items</li>
-{% endfor %}
-</ul>
-
-<a href="{% url 'user_home' %}">Back</a>
+<div class="items-grid fade-in delay-1 text-block">
+    {% for item in items %}
+    <div class="item-card-list">
+        {% if item.image %}
+        <img src="{{ item.image.url }}" alt="{{ item.item_type }}" class="item-image-mini">
+        {% else %}
+        <div class="item-image-mini d-flex align-items-center justify-content-center fs-4">👕</div>
+        {% endif %}
+        
+        <div class="item-content">
+            <h3 class="m-0 mb-2 text-main text-lg">{{ item.item_type }}</h3>
+            <p class="m-0 text-muted small">
+                {{ item.category }} • {{ item.color }}
+            </p>
+            <div class="mt-3">
+                <span class="status-badge status-neutral">
+                    Worn: {{ item.wear_count }}
+                </span>
+                <span class="status-badge {% if item.clean_status %}status-clean{% else %}status-dirty{% endif %} ms-2">
+                    {% if item.clean_status %}Clean{% else %}Needs Laundry{% endif %}
+                </span>
+            </div>
+        </div>
+        
+        <div class="align-self-center ms-auto">
+             <a href="{% url 'delete_wardrobe' item.id %}" 
+               onclick="return confirm('Are you sure you want to delete this wardrobe item?');"
+               class="btn btn-soft-danger btn-sm">
+               🗑️ Delete
+            </a>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state-card">
+        <p class="text-muted mb-4 text-lg">No wardrobe items found.</p>
+        <a href="{% url 'add_wardrobe' %}" class="btn btn-primary">Add Your First Item</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

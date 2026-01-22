@@ -1,22 +1,79 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login</title>
-</head>
-<body>
-    <h2> Login</h2>
+{% extends 'auth/base_auth.html' %}
 
-    {% if error %}
-        <p style="color:red;">{{ error }}</p>
+{% block title %}Sign In{% endblock %}
+
+{% block content %}
+<div class="auth-header">
+    <h2 class="auth-title">Welcome back</h2>
+    <p class="auth-subtitle">Enter your credentials to access your account</p>
+</div>
+
+{% if error %}
+<div class="alert alert-error fade-in">
+    <span class="alert-icon">⚠️</span>
+    {{ error }}
+</div>
+{% endif %}
+
+{% if form.errors %}
+<div class="alert alert-error fade-in">
+    <span class="alert-icon">⚠️</span>
+    {% if form.non_field_errors %}
+    {{ form.non_field_errors.0 }}
+    {% else %}
+    Please correct the errors below.
     {% endif %}
+</div>
+{% endif %}
 
-    <form method="post">
-        {% csrf_token %}
-        <input type="text" name="username" placeholder="Username" required><br><br>
-        <input type="password" name="password" placeholder="Password" required><br><br>
-        <button type="submit">Login</button>
-    </form>
-</p>
+<form method="post" class="auth-form fade-in delay-1" action="{{ app_path }}">
+    {% csrf_token %}
+    <div class="form-group-floating">
+        <input type="text" name="username" class="form-control-floating" id="username" placeholder=" " required
+            autofocus>
+        <span class="input-icon-floating">👤</span>
+        <label for="username" class="floating-label">Username</label>
+    </div>
 
-</body>
-</html>
+    <div class="form-group-floating">
+        <input type="password" name="password" class="form-control-floating" id="password" placeholder=" " required>
+        <span class="input-icon-floating">🔒</span>
+        <label for="password" class="floating-label">Password</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-lg w-100 btn-glow">
+        <span>Sign In</span>
+        <span class="btn-arrow">→</span>
+    </button>
+</form>
+
+<div class="auth-divider fade-in delay-2">
+    <span>New to Wardrobe Manager?</span>
+</div>
+
+<div class="auth-links fade-in delay-2">
+    <div class="auth-grid">
+        <a href="{% url 'user_register' %}" class="btn btn-secondary btn-account">
+            <span class="btn-account-icon">👤</span>
+            <span class="btn-account-text">
+                <span class="btn-account-label">User</span>
+                <span class="btn-account-desc">Personal account</span>
+            </span>
+        </a>
+        <a href="{% url 'supplier_register' %}" class="btn btn-secondary btn-account">
+            <span class="btn-account-icon">🏪</span>
+            <span class="btn-account-text">
+                <span class="btn-account-label">Supplier</span>
+                <span class="btn-account-desc">Business account</span>
+            </span>
+        </a>
+    </div>
+</div>
+
+<div class="auth-footer fade-in delay-3">
+    <p class="auth-footer-text">
+        <span class="secure-icon">🔐</span>
+        Secured with industry-standard encryption
+    </p>
+</div>
+{% endblock %}

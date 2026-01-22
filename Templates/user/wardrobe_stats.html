@@ -1,0 +1,58 @@
+{% extends 'user/base_dashboard.html' %}
+
+{% block title %}Wardrobe Analytics - Wardrobe Manager{% endblock %}
+
+{% block content %}
+
+    <div class="page-header fade-in">
+        <h2 class="page-title">📊 Wardrobe Analytics</h2>
+        <p class="page-subtitle">Insights into your wardrobe usage and value.</p>
+    </div>
+    
+    <div class="dashboard-grid fade-in mb-5 delay-1">
+        <div class="dashboard-card h-auto p-4">
+            <div class="dashboard-stat-value text-primary">{{ total_items }}</div>
+            <div class="dashboard-stat-label">Total Items</div>
+        </div>
+        <div class="dashboard-card h-auto p-4">
+            <div class="dashboard-stat-value text-success">₹{{ total_value|floatformat:0 }}</div>
+            <div class="dashboard-stat-label">Total Value</div>
+        </div>
+    </div>
+    
+    <div class="dashboard-grid fade-in delay-2">
+        
+        <div class="card">
+            <h3 class="mt-0 pb-3 border-bottom text-main fs-5">🔥 Most Worn Items</h3>
+            <ul class="list-unstyled p-0 m-0">
+                {% for item in most_worn %}
+                <li class="py-3 border-bottom d-flex justify-content-between align-items-center">
+                    <span class="fw-bold text-main fs-5">{{ item.item_type }}</span>
+                    <span class="text-muted small bg-body py-1 px-3 rounded-pill">
+                        Worn <b class="text-main">{{ item.wear_count }}</b> times
+                    </span>
+                </li>
+                {% empty %}
+                <li class="text-muted text-center py-4">No items worn yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
+        
+        <div class="card">
+            <h3 class="mt-0 pb-3 border-bottom text-main fs-5">💰 Best Value (Cost Per Wear)</h3>
+            <p class="small text-muted mb-4"><i>Lower cost per wear is better!</i></p>
+            <ul class="list-unstyled p-0 m-0">
+                {% for entry in best_value_items %}
+                <li class="py-3 border-bottom d-flex justify-content-between align-items-center">
+                    <span class="fw-bold text-main fs-5">{{ entry.item.item_type }}</span>
+                    <span class="text-success fw-bold">₹{{ entry.cpw|floatformat:2 }}/wear</span>
+                </li>
+                {% empty %}
+                <li class="text-muted text-center py-4">Not enough data yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
+        
+    </div>
+
+{% endblock %}

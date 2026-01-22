@@ -1,27 +1,51 @@
-<h2>Order Bill</h2>
+{% extends 'user/base_dashboard.html' %}
 
-<p><b>Order ID:</b> {{ order.id }}</p>
-<p><b>Date:</b> {{ order.order_date }}</p>
-<p><b>Status:</b> {{ order.status }}</p>
+{% block content %}
+<div class="page-header fade-in text-center border-0 mb-5">
+    <div class="success-icon">✓</div>
+    <h2 class="page-title">Order Placed Successfully!</h2>
+    <p class="page-subtitle">Thank you for your purchase.</p>
+</div>
 
-<hr>
-
-<h3>Shipping Address</h3>
-<p>{{ order.address }}</p>
-
-<hr>
-
-{% for item in order.items.all %}
-<p>
-    {{ item.accessory.name }} × {{ item.quantity }} <br>
-    Price: ₹{{ item.price }} <br>
-    Subtotal: ₹{{ item.price|floatformat:2 }}
-    <p><b>Payment Mode:</b> {{ order.get_payment_mode_display }}</p>
-
-</p>
-{% endfor %}
-
-<hr>
-<h3>Total: ₹{{ order.total_amount }}</h3>
-
-<a href="{% url 'shop_accessories' %}">Continue Shopping</a>
+<div class="card receipt-card fade-in delay-1">
+    <div class="receipt-header">
+        <span class="fw-bold text-main">Order #{{ order.id }}</span>
+        <span class="text-muted">{{ order.order_date }}</span>
+    </div>
+    
+    <div class="receipt-body">
+        <div class="receipt-section">
+            <h4 class="receipt-section-title">Shipping To</h4>
+            <p class="m-0 fs-6 text-main">{{ order.address }}</p>
+        </div>
+        
+        <div class="receipt-section">
+            <h4 class="receipt-section-title">Payment</h4>
+            <p class="m-0 fs-6 text-main">
+                Method: {{ order.get_payment_mode_display }} <br>
+                <span class="status-badge status-neutral mt-2">{{ order.status|title }}</span>
+            </p>
+        </div>
+        
+        <h4 class="receipt-section-title mb-3">Items</h4>
+        {% for item in order.items.all %}
+        <div class="receipt-item">
+            <div>
+                <span class="fw-bold text-main">{{ item.accessory.name }}</span> <span class="text-muted">× {{ item.quantity }}</span>
+            </div>
+            <span class="text-main">₹{{ item.price|floatformat:2 }}</span>
+        </div>
+        {% endfor %}
+        
+        <div class="receipt-total">
+            <span class="text-main">Total</span>
+            <span class="text-primary">₹{{ order.total_amount }}</span>
+        </div>
+    </div>
+    
+    <div class="receipt-actions">
+        <a href="{% url 'shop_accessories' %}" class="btn btn-primary">Continue Shopping</a>
+        <a href="{% url 'user_orders' %}" class="btn btn-outline ms-2">View My Orders</a>
+    </div>
+</div>
+{% endblock %}

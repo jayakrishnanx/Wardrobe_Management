@@ -1,23 +1,54 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Supplier Registration</title>
-</head>
-<body>
-    <h2>Register as Supplier</h2>
+{% extends 'auth/base_auth.html' %}
 
-    {% if error %}
-        <p style="color:red;">{{ error }}</p>
-    {% endif %}
+{% block title %}Supplier Registration{% endblock %}
 
-    <form method="post">
-        {% csrf_token %}
-        Username: <input type="text" name="username"><br><br>
-        Email: <input type="email" name="email"><br><br>
-        Password: <input type="password" name="password1"><br><br>
-        Confirm Password: <input type="password" name="password2"><br><br>
+{% block content %}
+<div class="auth-header">
+    <h2 class="auth-title">Supplier Partner</h2>
+    <p class="auth-subtitle">Join our network to manage your inventory and sales</p>
+</div>
 
-        <button type="submit">Register</button>
-    </form>
-</body>
-</html>
+{% if error %}
+<div class="alert alert-error fade-in">
+    <span class="alert-icon">⚠️</span>
+    {{ error }}
+</div>
+{% endif %}
+
+<form method="post" class="auth-form fade-in delay-1">
+    {% csrf_token %}
+    
+    <div class="form-group-floating">
+        <input type="text" name="username" class="form-control-floating" id="username" placeholder=" " required autofocus>
+        <span class="input-icon-floating">🏪</span>
+        <label for="username" class="floating-label">Company/Username</label>
+    </div>
+
+    <div class="form-group-floating">
+        <input type="email" name="email" class="form-control-floating" id="email" placeholder=" " required>
+        <span class="input-icon-floating">📧</span>
+        <label for="email" class="floating-label">Business Email</label>
+    </div>
+
+    <div class="form-group-floating">
+        <input type="password" name="password1" class="form-control-floating" id="pass1" placeholder=" " required>
+        <span class="input-icon-floating">🔒</span>
+        <label for="pass1" class="floating-label">Password</label>
+    </div>
+
+    <div class="form-group-floating">
+        <input type="password" name="password2" class="form-control-floating" id="pass2" placeholder=" " required>
+        <span class="input-icon-floating">🔐</span>
+        <label for="pass2" class="floating-label">Confirm Password</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-lg w-100 btn-glow">
+        <span>Register as Supplier</span>
+        <span class="btn-arrow">→</span>
+    </button>
+</form>
+
+<div class="auth-footer fade-in delay-2">
+    <p>Already have an account? <a href="{% url 'user_login' %}" class="auth-link">Sign In</a></p>
+</div>
+{% endblock %}

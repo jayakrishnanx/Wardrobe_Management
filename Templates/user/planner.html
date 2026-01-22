@@ -1,0 +1,69 @@
+{% extends 'user/base_dashboard.html' %}
+
+{% block title %}My Outfit Planner - Wardrobe Manager{% endblock %}
+
+{% block content %}
+
+    <div class="page-header fade-in">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="page-title">📅 My Outfit Planner</h2>
+                <p class="page-subtitle">Schedule your outfits for the week ahead.</p>
+            </div>
+            <a href="{% url 'recommend_outfit' %}" class="btn btn-primary">+ Plan New Outfit</a>
+        </div>
+    </div>
+
+    {% if messages %}
+        <div class="fade-in delay-1">
+            {% for message in messages %}
+            <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="fade-in delay-2">
+    {% for plan in plans %}
+    <div class="card planner-card">
+        <div class="planner-date">
+            <span>📅</span> {{ plan.date|date:"l, F j, Y" }}
+        </div>
+        
+        <div class="planner-items">
+            <div class="planner-item">
+                <strong>Top</strong><br>
+                {{ plan.outfit.top_item.item_type }}
+                {% if plan.outfit.top_item.image %}
+                <br><img src="{{ plan.outfit.top_item.image.url }}">
+                {% endif %}
+            </div>
+            <div class="planner-item">
+                <strong>Bottom</strong><br>
+                {{ plan.outfit.bottom_item.item_type }}
+                {% if plan.outfit.bottom_item.image %}
+                <br><img src="{{ plan.outfit.bottom_item.image.url }}">
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="text-end">
+             <a href="{% url 'wear_outfit' plan.outfit.top_item.id plan.outfit.bottom_item.id %}" 
+                class="btn btn-success"
+                onclick="return confirm('Wear this planned outfit?')">
+                ✅ Mark as Worn
+             </a>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state-card">
+        <div class="fs-1 mb-3">🗓️</div>
+        <h3>No upcoming outfits planned.</h3>
+        <p class="text-muted mb-4">Go to Recommendations and click "Plan for Later" to add items here.</p>
+        <a href="{% url 'recommend_outfit' %}" class="btn btn-primary">Find an outfit to plan!</a>
+    </div>
+    {% endfor %}
+    </div>
+
+{% endblock %}

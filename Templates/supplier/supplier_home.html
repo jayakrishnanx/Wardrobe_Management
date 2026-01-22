@@ -1,38 +1,37 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Supplier Home</title>
-</head>
-<body>
+{% extends 'supplier/base_dashboard.html' %}
 
-<h2>Supplier Dashboard</h2>
+{% block content %}
+<div class="page-header fade-in">
+    <h2 class="page-title">📊 Dashboard Overview</h2>
+    <p class="page-subtitle">Welcome back, {{ request.user.username }}!</p>
+</div>
 
-<ul>
-    <li>
-        <a href="{% url 'manage_accessories' %}">
-            Manage Accessories
+<div class="dashboard-grid fade-in delay-1">
+    <div class="dashboard-card">
+        <h3 class="dashboard-stat-label">Total Items</h3>
+        <p class="dashboard-stat-value text-primary">{{ total_items }}</p>
+    </div>
+    
+    <div class="dashboard-card">
+        <h3 class="dashboard-stat-label">Total Orders</h3>
+        <p class="dashboard-stat-value text-success">{{ total_orders }}</p>
+    </div>
+    
+    <div class="dashboard-card">
+        <h3 class="dashboard-stat-label">Total Revenue</h3>
+        <p class="dashboard-stat-value text-warning">₹{{ revenue }}</p>
+    </div>
+</div>
+
+<div class="card fade-in mt-4 delay-2">
+    <h3 class="text-main mb-4 mt-0">Quick Actions</h3>
+    <div class="d-flex gap-3 flex-wrap">
+        <a href="{% url 'add_accessories' %}" class="btn btn-primary">
+            <span class="me-2">+</span> Add New Item
         </a>
-    </li>
-
-    <li>
-        <a href="{% url 'add_accessories' %}">
-            Add Accessories
+        <a href="{% url 'manage_accessories' %}" class="btn btn-outline">
+            Manage Inventory
         </a>
-    </li>
-
-    <li>
-        <a href="{% url 'supplier_orders' %}">
-            View Orders
-        </a>
-    </li>
-
-    <li>
-        <form method="post" action="{% url 'logout' %}" style="display:inline;">
-            {% csrf_token %}
-            <button type="submit">Logout</button>
-        </form>
-    </li>
-</ul>
-
-</body>
-</html>
+    </div>
+</div>
+{% endblock %}
