@@ -1,65 +1,75 @@
-<h2>My Wardrobe</h2>
+{% extends 'user/base_dashboard.html' %}
 
-<form method="get">
-    Category:
-    <select name="category">
-        <option value="">All</option>
-        {% for c in categories %}
-            <option value="{{ c.id }}"
-                {% if request.GET.category == c.id|stringformat:"s" %}
-                    selected
-                {% endif %}
-            >
-                {{ c.name }}
-            </option>
-        {% endfor %}
-    </select>
-    <button type="submit">Filter</button>
-</form>
+{% block content %}
 
-<hr>
-
-{% for item in items %}
-<div style="border:1px solid #ccc; padding:10px; margin-bottom:10px;">
-
-    {% if item.image %}
-        <img src="{{ item.image.url }}" width="120"><br>
-    {% endif %}
-
-    <b>{{ item.item_type }}</b><br>
-    Category: {{ item.category.name }}<br>
-    Color: {{ item.color }}<br>
-    Wear Count: {{ item.wear_count }}<br>
-
-    Status:
-    {% if item.clean_status %}
-        <span style="color:green;">Clean</span>
-    {% else %}
-        <span style="color:red;">Needs Laundry</span>
-    {% endif %}
-
-    <br><br>
-
-    <!-- MARK AS WORN -->
-    {% if item.clean_status %}
-        <a href="{% url 'mark_as_worn' item.id %}">
-            <button type="button">Mark as Worn</button>
-        </a>
-    {% else %}
-        <button type="button" disabled>Dirty</button>
-    {% endif %}
-
-    <!-- SEND TO LAUNDRY -->
-    {% if item.clean_status %}
-        <a href="{% url 'send_to_laundry' item.id %}"
-           onclick="return confirm('Send this item to laundry?');">
-            <button type="button">Send to Laundry</button>
-        </a>
-    {% else %}
-        <span style="color:gray;">(Already in Laundry)</span>
-    {% endif %}
-
+<div class="page-header">
+    <h2 class="page-title">🧺 Laundry & Usage</h2>
+    <p class="page-subtitle">Track usage and laundry status of your clothes.</p>
 </div>
-{% empty %}
-<p>No clothes added yet.</p>
-{% endfor %}
+
+<div class="filter-bar fade-in">
+    <form method="get" class="filter-form">
+        <label for="category" class="form-label mb-0">Filter by Category:</label>
+        <select name="category" class="filter-select">
+            <option value="">All Categories</option>
+            {% for c in categories %}
+                <option value="{{ c.id }}" {% if request.GET.category == c.id|stringformat:"s" %}selected{% endif %}>
+                    {{ c.name }}
+                </option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </form>
+</div>
+
+<div class="items-grid fade-in delay-2">
+    {% for item in items %}
+    <div class="item-card">
+        {% if item.image %}
+        <div class="item-image-container">
+            <img src="{{ item.image.url }}" class="item-image" alt="{{ item.item_type }}">
+        </div>
+        {% endif %}
+        
+        <div class="item-details">
+            <div class="item-header">
+                <div>
+                    <h3 class="item-title">{{ item.item_type }}</h3>
+                    <span class="item-subtitle">{{ item.category.name }} • {{ item.color }}</span>
+                </div>
+                <div class="wear-count-box">
+                    <span class="wear-label">Wear Count</span>
+                    <span class="wear-value">{{ item.wear_count }}</span>
+                </div>
+            </div>
+            
+            <div class="item-status">
+                {% if item.clean_status %}
+                    <span class="status-badge status-clean">✨ Clean</span>
+                {% else %}
+                    <span class="status-badge status-dirty">🧺 Needs Laundry</span>
+                {% endif %}
+            </div>
+
+            <div class="item-actions">
+                {% if item.clean_status %}
+                    <a href="{% url 'mark_as_worn' item.id %}" class="btn btn-soft-primary btn-block btn-sm">Mark as Worn</a>
+                    <a href="{% url 'send_to_laundry' item.id %}" 
+                       onclick="return confirm('Send this item to laundry?');"
+                       class="btn btn-soft-warning btn-block btn-sm">
+                       Send to Laundry
+                    </a>
+                {% else %}
+                    <button disabled class="btn btn-disabled btn-block btn-sm">Dirty (Needs Wash)</button>
+                    <span class="item-laundry-note">Item is already in laundry list or dirty.</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state-card">
+        <p class="text-muted">No clothes found in this category.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

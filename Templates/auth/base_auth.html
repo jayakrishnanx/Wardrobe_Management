@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Auth{% endblock %} - Wardrobe Manager</title>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Main CSS -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+
+<body class="auth-body">
+    <!-- Animated Background Elements -->
+    <div class="auth-bg-shapes">
+        <div class="auth-mesh auth-mesh-1"></div>
+        <div class="auth-mesh auth-mesh-2"></div>
+        <div class="auth-mesh auth-mesh-3"></div>
+    </div>
+
+    <div class="auth-container">
+        <!-- Left Side - Branding -->
+        <div class="auth-branding">
+            <div class="auth-branding-content">
+                <div class="auth-logo-icon">👗</div>
+                <h1 class="auth-branding-title">Wardrobe Manager</h1>
+                <p class="auth-branding-subtitle">Your personal style companion for organizing, planning, and elevating
+                    your wardrobe.</p>
+
+                <div class="auth-features">
+                    <div class="auth-feature">
+                        <span class="auth-feature-icon">✨</span>
+                        <span>AI-Powered Recommendations</span>
+                    </div>
+                    <div class="auth-feature">
+                        <span class="auth-feature-icon">📅</span>
+                        <span>Smart Outfit Planning</span>
+                    </div>
+                    <div class="auth-feature">
+                        <span class="auth-feature-icon">🛍️</span>
+                        <span>Premium Accessories Shop</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side - Form -->
+        <div class="auth-card">
+            <div class="auth-card-inner">
+                <div class="auth-brand-mobile">👗 Wardrobe</div>
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

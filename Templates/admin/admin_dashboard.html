@@ -1,33 +1,57 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Admin Dashboard</title>
-</head>
-<body>
+{% extends 'admin/base_dashboard.html' %}
 
-<h2>Admin Dashboard</h2>
+{% block content %}
+<div class="page-header fade-in">
+    <h2 class="page-title">Admin Dashboard</h2>
+    <p class="page-subtitle">Overview of system statistics and management.</p>
+</div>
 
-<ul>
-    <li>Total Users: {{ total_users }}</li>
-    <li>Total Suppliers: {{ total_suppliers }}</li>
-    <li>Total Accessories: {{ total_accessories }}</li>
-    <li>Total Orders: {{ total_orders }}</li>
-    <li>Total Recommendations: {{ total_recommendations }}</li>
-</ul>
+<div class="dashboard-grid fade-in delay-1 mb-2-5">
+    <div class="dashboard-card">
+        <h3 class="dashboard-stat-label">Total Users</h3>
+        <p class="dashboard-stat-value text-primary">{{ total_users }}</p>
+    </div>
+    
+    <div class="dashboard-card">
+        <h3 class="dashboard-stat-label">Total Suppliers</h3>
+        <p class="dashboard-stat-value text-info">{{ total_suppliers }}</p>
+    </div>
+    
+    <div class="dashboard-card">
+        <h3 class="dashboard-stat-label">Total Accessories</h3>
+        <p class="dashboard-stat-value text-success">{{ total_accessories }}</p>
+    </div>
+    
+    <div class="dashboard-card">
+        <h3 class="dashboard-stat-label">Total Orders</h3>
+        <p class="dashboard-stat-value text-warning">{{ total_orders }}</p>
+    </div>
+    
+    <div class="dashboard-card">
+        <h3 class="dashboard-stat-label">Recommendations</h3>
+        <p class="dashboard-stat-value text-secondary">{{ total_recommendations }}</p>
+    </div>
+</div>
 
-<hr>
-
-<h3>Admin Functions</h3>
-
-<ul>
-    <li><a href="/admin/accounts/customuser/">Manage Users</a></li>
-    <li><a href="/admin/accessories/accessory/">Manage Accessories</a></li>
-    <li><a href="/admin/orders/order/">View Orders</a></li>
-    <li><a href="/admin/recommendations/outfitrecommendation/">View Recommendations</a></li>
-</ul>
-
-<br>
-<a href="{% url 'user_logout' %}">Logout</a>
-
-</body>
-</html>
+<div class="card fade-in delay-2">
+    <h3 class="section-title">Quick Management</h3>
+    <div class="form-grid">
+        <a href="/admin/accounts/customuser/" class="btn btn-outline dashboard-action-btn">
+            <span class="dashboard-action-icon">👥</span>
+            Manage Users
+        </a>
+        <a href="/admin/accessories/accessory/" class="btn btn-outline dashboard-action-btn">
+            <span class="dashboard-action-icon">🧣</span>
+            Manage Accessories
+        </a>
+        <a href="/admin/orders/order/" class="btn btn-outline dashboard-action-btn">
+            <span class="dashboard-action-icon">📦</span>
+            View Orders
+        </a>
+        <a href="/admin/recommendations/outfitrecommendation/" class="btn btn-outline dashboard-action-btn">
+            <span class="dashboard-action-icon">✨</span>
+            View Recommendations
+        </a>
+    </div>
+</div>
+{% endblock %}

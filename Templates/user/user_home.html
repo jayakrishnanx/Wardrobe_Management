@@ -1,19 +1,44 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>User Home</title>
-</head>
-<body>
-    <h2>Welcome, {{ request.user.username }}</h2>
+{% extends 'user/base_dashboard.html' %}
 
-    <ul>
-        <li><a href="/recommendations/recommend/">Get Outfit Recommendation</a></li>
-        <li><a href="{% url 'wardrobe_home' %}">Manage Wardrobe</a></li>
-        <li><a href="{% url 'view_clothes' %}">View Clothes</a></li>
-        <li><a href="{% url 'laundry_list' %}">Laundry Items</a></li>
-        <li><a href="{% url 'shop_accessories' %}">Shop Accessories</a></li>
-        <li><a href="{% url 'user_orders' %}">View Orders</a></li>
-        <li><a href="{% url 'user_logout' %}">Logout</a></li>
-    </ul>
-</body>
-</html>
+{% block title %}Dashboard - Wardrobe Manager{% endblock %}
+
+{% block content %}
+    
+    <div class="welcome-banner fade-in">
+        <h2>Welcome back, {{ request.user.username }}! 👋</h2>
+        <p>Your wardrobe is looking great today. What would you like to do?</p>
+    </div>
+
+    <div class="dashboard-grid fade-in delay-2">
+        <a href="{% url 'recommend_outfit' %}" class="dashboard-card">
+            <div class="dashboard-card-icon">✨</div>
+            <div class="dashboard-card-title">Get Recommendations</div>
+        </a>
+
+        <a href="{% url 'view_planner' %}" class="dashboard-card">
+            <div class="dashboard-card-icon">📅</div>
+            <div class="dashboard-card-title">Outfit Planner</div>
+        </a>
+
+        <a href="{% url 'wardrobe_home' %}" class="dashboard-card">
+            <div class="dashboard-card-icon">👕</div>
+            <div class="dashboard-card-title">Manage Wardrobe</div>
+        </a>
+
+        <a href="{% url 'view_clothes' %}" class="dashboard-card">
+            <div class="dashboard-card-icon">👀</div>
+            <div class="dashboard-card-title">Browse Closet</div>
+        </a>
+
+        <a href="{% url 'laundry_list' %}" class="dashboard-card">
+            <div class="dashboard-card-icon">🧺</div>
+            <div class="dashboard-card-title">Laundry Room</div>
+        </a>
+
+        <a href="{% url 'wardrobe_stats' %}" class="dashboard-card">
+            <div class="dashboard-card-icon">📊</div>
+            <div class="dashboard-card-title">Wardrobe Analytics</div>
+        </a>
+    </div>
+
+{% endblock %}

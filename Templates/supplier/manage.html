@@ -1,51 +1,64 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Supplier Accessories</title>
-</head>
-<body>
+{% extends 'supplier/base_dashboard.html' %}
 
-<h2>Your Accessories</h2>
+{% block title %}Manage Accessories{% endblock %}
 
-{% for a in accessories %}
-<div style="margin-bottom:20px; border:1px solid #ccc; padding:10px; width:350px;">
-
-    {% if a.image %}
-        <img src="{{ a.image.url }}" width="150" height="150" style="object-fit:cover;"><br><br>
-    {% endif %}
-
-    <strong>Name:</strong> {{ a.name }} <br>
-    <strong>Category:</strong> {{ a.category }} <br>
-    <strong>Price:</strong> ₹{{ a.price }} <br>
-    <strong>Stock:</strong> {{ a.stock }} <br><br>
-
-    <!-- 🔁 UPDATE STOCK -->
-    <form method="post" action="{% url 'update_stock' a.id %}">
-        {% csrf_token %}
-        <input type="number" name="stock" value="{{ a.stock }}" min="0">
-        <button type="submit">Update Stock</button>
-    </form>
-
-    <br>
-
-    <!-- ✏️ EDIT -->
-    <a href="{% url 'edit_accessory' a.id %}">Edit</a>
-
-    <br><br>
-
-    <!-- 🗑 DELETE -->
-    <form method="post" action="{% url 'delete_accessory' a.id %}"
-          onsubmit="return confirm('Delete this accessory?');">
-        {% csrf_token %}
-        <button type="submit" style="color:red;">Delete</button>
-    </form>
-
+{% block content %}
+<div class="page-header fade-in d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div>
+        <h2 class="page-title">📦 My Products</h2>
+        <p class="page-subtitle">Manage your inventory and stock levels.</p>
+    </div>
+    <a href="{% url 'add_accessories' %}" class="btn btn-primary">
+        + Add New Product
+    </a>
 </div>
-{% empty %}
-<p>No accessories added yet.</p>
-{% endfor %}
 
-<a href="{% url 'supplier_home' %}">Back to Dashboard</a>
-
-</body>
-</html>
+<div class="items-grid fade-in delay-1">
+    {% for a in accessories %}
+    <div class="item-card">
+        <div class="item-header-image-row">
+            {% if a.image %}
+            <div class="w-120 h-120 flex-shrink-0">
+                <img src="{{ a.image.url }}" class="w-100 h-100 object-fit-cover">
+            </div>
+            {% else %}
+            <div class="w-120 h-120 bg-secondary d-flex align-items-center justify-content-center text-muted">
+                No Image
+            </div>
+            {% endif %}
+            
+            <div class="p-3 flex-grow-1 overflow-hidden">
+                <h3 class="item-title text-truncate">{{ a.name }}</h3>
+                <span class="badge-category">
+                    {{ a.category }}
+                </span>
+                <p class="item-price">₹{{ a.price }}</p>
+            </div>
+        </div>
+        
+        <div class="p-3 bg-card">
+            <form method="post" action="{% url 'update_stock' a.id %}" class="d-flex align-items-center gap-2 mb-3">
+                {% csrf_token %}
+                <label class="small text-muted">Stock:</label>
+                <input type="number" name="stock" value="{{ a.stock }}" min="0" class="form-control form-control-sm">
+                <button type="submit" class="btn btn-outline py-1 px-2 small">Update</button>
+            </form>
+            
+            <div class="d-flex gap-2 border-top pt-3">
+                <a href="{% url 'edit_accessory' a.id %}" class="btn btn-outline flex-grow-1 text-center">Edit</a>
+                
+                <form method="post" action="{% url 'delete_accessory' a.id %}" class="flex-grow-1" onsubmit="return confirm('Delete this accessory?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-soft-danger w-100">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state-card">
+        <p class="text-muted mb-4 fs-5">No accessories added yet.</p>
+        <a href="{% url 'add_accessories' %}" class="btn btn-primary">Add Your First Product</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

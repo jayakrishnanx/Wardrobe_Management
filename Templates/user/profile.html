@@ -1,0 +1,69 @@
+{% extends 'user/base_dashboard.html' %}
+
+{% block content %}
+<div class="page-header fade-in">
+    <h2 class="page-title">👤 My Profile</h2>
+    <p class="page-subtitle">Manage your personal information.</p>
+</div>
+
+<div class="dashboard-grid fade-in delay-1">
+    <!-- Profile Summary Card -->
+    <div class="card text-center h-auto">
+        <div class="avatar-circle">
+            {% if user.profile_picture %}
+                <img src="{{ user.profile_picture.url }}" alt="Profile">
+            {% else %}
+                <div class="avatar-placeholder">
+                    {{ user.username|make_list|first|upper }}
+                </div>
+            {% endif %}
+        </div>
+        
+        <h3 class="profile-name">{{ user.get_full_name|default:user.username }}</h3>
+        <p class="profile-username">@{{ user.username }}</p>
+        
+        <a href="{% url 'edit_profile' %}" class="btn btn-primary w-100">Edit Profile</a>
+    </div>
+
+    <!-- Profile Details Card -->
+    <div class="card">
+        <h3 class="profile-section-title">Personal Details</h3>
+        
+        <div class="profile-detail-grid">
+            <div>
+                <span class="profile-label">Email Address</span>
+                <div class="profile-value">{{ user.email|default:"Not set" }}</div>
+            </div>
+            
+            <div>
+                <span class="profile-label">Phone Number</span>
+                <div class="profile-value">{{ user.phone_number|default:"Not set" }}</div>
+            </div>
+            
+            <div class="profile-full-width">
+                <span class="profile-label">Address</span>
+                <div class="profile-value">{{ user.address|default:"Not set" }}</div>
+            </div>
+            
+            <div class="profile-full-width">
+                <span class="profile-label">Bio</span>
+                <div class="profile-value profile-bio">{{ user.bio|default:"No bio added yet." }}</div>
+            </div>
+        </div>
+        
+        <div class="profile-stats-section">
+            <h4 class="profile-stats-title">Account Stats</h4>
+            <div class="profile-stats-grid">
+                <div class="stat-box">
+                    <span class="stat-box-value">{{ user.wardrobeitem_set.count }}</span>
+                    <span class="stat-box-label">Clothes</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-box-value text-success">{{ user.order_set.count }}</span>
+                    <span class="stat-box-label">Orders</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

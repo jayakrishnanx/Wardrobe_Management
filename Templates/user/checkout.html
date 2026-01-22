@@ -1,22 +1,188 @@
-<h2>Checkout</h2>
+{% extends 'user/base_dashboard.html' %}
 
-<p><b>Accessory:</b> {{ accessory.name }}</p>
-<p><b>Quantity:</b> {{ quantity }}</p>
-<p><b>Total:</b> ₹{{ total }}</p>
+{% block title %}Checkout{% endblock %}
 
-<form method="post" action="{% url 'place_order' %}">
-    {% csrf_token %}
+{% block content %}
+<div class="page-header fade-in">
+    <h2 class="page-title">💳 Secure Checkout</h2>
+    <p class="page-subtitle">Complete your purchase safely.</p>
+</div>
 
-    <label>Shipping Address</label><br>
-    <textarea name="address" required></textarea><br><br>
+<div class="checkout-grid fade-in delay-1">
+    
+    <!-- Order Summary -->
+    <div class="card h-auto">
+        <h3 class="profile-section-title m-0 mb-4">Order Summary</h3>
+        
+        <div class="d-flex gap-3 mb-4">
+            {% if accessory.image %}
+            <img src="{{ accessory.image.url }}" class="rounded checkout-item-img">
+            {% else %}
+            <div class="rounded bg-body d-flex align-items-center justify-content-center fs-1 checkout-item-img">🖼️</div>
+            {% endif %}
+            
+            <div>
+                <h4 class="m-0 mb-2 text-main">{{ accessory.name }}</h4>
+                <div class="text-muted small">Category: {{ accessory.category }}</div>
+                <div class="text-success small mt-1">In Stock</div>
+            </div>
+        </div>
 
-    <label>Payment Mode</label><br>
-    <select name="payment_mode" required>
-        <option value="">-- Select Payment Mode --</option>
-        <option value="cod">Cash on Delivery</option>
-        <option value="upi">UPI</option>
-        <option value="card">Card</option>
-    </select><br><br>
+        <div class="summary-row">
+            <span class="text-muted">Price:</span>
+            <span class="fw-bold text-main">₹{{ accessory.price }}</span>
+        </div>
+        <div class="summary-row">
+            <span class="text-muted">Quantity:</span>
+            <span class="fw-bold text-main">{{ quantity }}</span>
+        </div>
+        <div class="summary-row">
+            <span class="text-muted">Shipping:</span>
+            <span class="fw-bold text-success">FREE</span>
+        </div>
+        
+        <div class="d-flex justify-content-between mt-4 pt-3 border-top border-dashed">
+            <span class="fs-5 fw-bold text-main">Total Amount:</span>
+            <span class="fs-4 fw-bold text-primary">₹{{ total }}</span>
+        </div>
+        
+        <div class="secure-badge">
+            <span class="me-1">🔒</span> 100% Secure Transaction
+        </div>
+    </div>
 
-    <button type="submit">Place Order</button>
-</form>
+    <!-- Shipping & Payment Form -->
+    <div class="card">
+        <h3 class="profile-section-title m-0 mb-4">Shipping & Payment</h3>
+        <form id="paymentForm" method="post" action="{% url 'place_order' %}">
+            {% csrf_token %}
+            <input type="hidden" name="accessory_id" value="{{ accessory.id }}">
+            <input type="hidden" name="quantity" value="{{ quantity }}">
+            
+            <div class="mb-4">
+                <h4 class="mb-3 text-main">Shipping Details</h4>
+                
+                <div class="form-grid mb-3">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" name="full_name" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" name="phone" required class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Address</label>
+                    <textarea name="address" required rows="2" placeholder="Street address, apartment, etc." class="form-control"></textarea>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">City</label>
+                        <input type="text" name="city" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">State</label>
+                        <input type="text" name="state" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Pincode</label>
+                        <input type="text" name="pincode" required class="form-control">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-5">
+                <label class="form-label mb-3">Payment Method</label>
+                
+                <div class="d-grid gap-3">
+                    <label class="payment-option">
+                        <input type="radio" name="payment_mode" value="card" required class="me-3">
+                        <div>
+                            <div class="fw-bold text-main">Credit / Debit Card</div>
+                            <div class="small text-muted">Visa, Mastercard, RuPay</div>
+                        </div>
+                        <span class="ms-auto fs-4">💳</span>
+                    </label>
+                    
+                    <label class="payment-option">
+                        <input type="radio" name="payment_mode" value="upi" class="me-3">
+                        <div>
+                            <div class="fw-bold text-main">UPI / Netbanking</div>
+                            <div class="small text-muted">Google Pay, PhonePe, Paytm</div>
+                        </div>
+                        <span class="ms-auto fs-4">📱</span>
+                    </label>
+                    
+                    <label class="payment-option">
+                        <input type="radio" name="payment_mode" value="cod" class="me-3">
+                        <div>
+                            <div class="fw-bold text-main">Cash on Delivery</div>
+                            <div class="small text-muted">Pay when you receive</div>
+                        </div>
+                        <span class="ms-auto fs-4">💵</span>
+                    </label>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary w-100 py-3 fs-5 gap-2">
+                <span>Pay ₹{{ total }}</span>
+                <span>➔</span>
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Fake Payment Loading Overlay -->
+<div class="payment-overlay" id="paymentOverlay">
+    <div class="spinner"></div>
+    <div class="payment-status-text">Processing Payment...</div>
+    <div class="payment-subtext">Please do not close this window.</div>
+    <div class="secure-badge border-0 bg-transparent mt-3">
+        <span>🔒</span> 256-bit Secure Encryption
+    </div>
+</div>
+
+<script>
+    document.getElementById('paymentForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Show Overlay
+        const overlay = document.getElementById('paymentOverlay');
+        overlay.style.display = 'flex';
+        
+        // Simulate different stages
+        const statusText = document.querySelector('.payment-status-text');
+        
+        setTimeout(() => {
+            statusText.innerText = "Verifying details...";
+        }, 1000);
+        
+        setTimeout(() => {
+            statusText.innerText = "Confirming order...";
+        }, 2500);
+        
+        // Submit after 4 seconds
+        setTimeout(() => {
+            this.submit();
+        }, 3500);
+    });
+    
+    // Add active class to selected payment method
+    const radios = document.querySelectorAll('input[name="payment_mode"]');
+    radios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            // Remove active class from all labels
+            document.querySelectorAll('.payment-option').forEach(l => {
+                l.classList.remove('active');
+            });
+            
+            if(this.checked) {
+                this.closest('.payment-option').classList.add('active');
+            }
+        });
+    });
+</script>
+{% endblock %}

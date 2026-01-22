@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Wardrobe Manager{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Main CSS -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <button class="mobile-toggle" onclick="toggleSidebar()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </button>
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="{% url 'user_home' %}" class="app-title">
+                👗 Wardrobe
+            </a>
+            <div class="user-badge">
+                {{ request.user.username }}
+            </div>
+        </div>
+        
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="{% url 'user_home' %}" class="{% if request.resolver_match.url_name == 'user_home' %}active{% endif %}">
+                    <span class="nav-icon">🏠</span> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'recommend_outfit' %}" class="{% if request.resolver_match.url_name == 'recommend_outfit' %}active{% endif %}">
+                    <span class="nav-icon">✨</span> AI Stylist
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'view_planner' %}" class="{% if request.resolver_match.url_name == 'view_planner' %}active{% endif %}">
+                    <span class="nav-icon">📅</span> Planner
+                </a>
+            </li>
+            
+            <li class="nav-section-label">Wardrobe</li>
+
+            <li class="nav-item">
+                <a href="{% url 'wardrobe_home' %}" class="{% if request.resolver_match.url_name == 'wardrobe_home' %}active{% endif %}">
+                    <span class="nav-icon">👕</span> Manage Items
+                </a>
+            </li>
+             <li class="nav-item">
+                <a href="{% url 'view_clothes' %}" class="{% if request.resolver_match.url_name == 'view_clothes' %}active{% endif %}">
+                    <span class="nav-icon">👀</span> All Clothes
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'laundry_list' %}" class="{% if request.resolver_match.url_name == 'laundry_list' %}active{% endif %}">
+                    <span class="nav-icon">🧺</span> Laundry
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'wardrobe_stats' %}" class="{% if request.resolver_match.url_name == 'wardrobe_stats' %}active{% endif %}">
+                    <span class="nav-icon">📊</span> Analytics
+                </a>
+            </li>
+
+            <li class="nav-section-label">Shop</li>
+
+            <li class="nav-item">
+                <a href="{% url 'shop_accessories' %}" class="{% if request.resolver_match.url_name == 'shop_accessories' %}active{% endif %}">
+                    <span class="nav-icon">🛍️</span> Marketplace
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'user_orders' %}" class="{% if request.resolver_match.url_name == 'user_orders' %}active{% endif %}">
+                    <span class="nav-icon">📦</span> Orders
+                </a>
+            </li>
+            
+            <li class="nav-section-label">Account</li>
+
+            <li class="nav-item">
+                <a href="{% url 'user_profile' %}" class="{% if request.resolver_match.url_name == 'user_profile' %}active{% endif %}">
+                    <span class="nav-icon">👤</span> Profile
+                </a>
+            </li>
+            
+            <li class="nav-item nav-item-bottom">
+                <a href="{% url 'user_logout' %}" class="nav-link-logout">
+                    <span class="nav-icon">🚪</span> Sign Out
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+    </script>
+
+</body>
+</html>

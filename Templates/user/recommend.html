@@ -1,80 +1,137 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Outfit Recommendations</title>
-</head>
-<body>
+{% extends 'user/base_dashboard.html' %}
 
-<h2>Get Outfit Recommendations</h2>
+{% block title %}Recommendations - Wardrobe Manager{% endblock %}
 
-<form method="post">
-    {% csrf_token %}
+{% block content %}
 
-    Occasion:
-    <select name="occasion">
-        <option value="">-- Select Occasion --</option>
-        {% for o in occasions %}
-            <option value="{{ o.id }}">{{ o.name }}</option>
-        {% endfor %}
-    </select>
-
-    Season:
-    <select name="season">
-        <option value="">-- Select Season --</option>
-        {% for s in seasons %}
-            <option value="{{ s.id }}">{{ s.name }}</option>
-        {% endfor %}
-    </select>
-
-    <button type="submit">Recommend</button>
-</form>
-
-<hr>
-
-<h3>Recommended Outfits</h3>
-
-{% for rec in recommendations %}
-<div style="border:1px solid #ccc; padding:10px; margin-bottom:20px;">
-
-
-    <div style="display:flex; gap:30px;">
-        <div>
-            <b>Top</b><br>
-            {% if rec.top_item.image %}
-                <img src="{{ rec.top_item.image.url }}" width="150"><br>
-            {% endif %}
-            {{ rec.top_item.item_type }}
-        </div>
-
-        <div>
-            <b>Bottom</b><br>
-            {% if rec.bottom_item.image %}
-                <img src="{{ rec.bottom_item.image.url }}" width="150"><br>
-            {% endif %}
-            {{ rec.bottom_item.item_type }}
-        </div>
+    <div class="page-header fade-in">
+        <h2 class="page-title">✨ Outfit Recommendations</h2>
+        <p class="page-subtitle">Get personalized outfit suggestions based on your wardrobe.</p>
     </div>
 
+    <div class="filter-bar fade-in delay-1">
+        <form method="post" class="filter-form">
+            {% csrf_token %}
+            
+            <div class="flex-grow-1">
+                <label class="form-label">Occasion</label>
+                <select name="occasion" class="filter-select">
+                    <option value="">-- Any Occasion --</option>
+                    {% for o in occasions %}
+                        <option value="{{ o.id }}" {% if o.id == selected_occasion %}selected{% endif %}>{{ o.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
-    <p>
-        <b>Match Quality:</b>
-        {% if rec.match_score >= 0.85 %}
-            <span style="color:green;">Excellent</span>
-        {% elif rec.match_score >= 0.7 %}
-            <span style="color:blue;">Good</span>
-        {% elif rec.match_score >= 0.5 %}
-            <span style="color:orange;">Average</span>
-        {% else %}
-            <span style="color:red;">Poor</span>
-        {% endif %}
-    </p>
-    
+            <div class="flex-grow-1">
+                <label class="form-label">Season</label>
+                <select name="season" class="filter-select">
+                    <option value="">-- Any Season --</option>
+                    {% for s in seasons %}
+                        <option value="{{ s.id }}" {% if s.id == selected_season %}selected{% endif %}>{{ s.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
+            <div class="align-end flex-gap-sm">
+                <button type="submit" class="btn btn-primary">🔍 Find Outfits</button>
+                {% if selected_occasion or selected_season %}
+                <a href="?clear=true" class="btn btn-secondary" onclick="document.querySelector('[name=occasion]').value='';document.querySelector('[name=season]').value='';this.closest('form').submit();return false;">❌ Clear</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
 
-</div>
-{% empty %}
-<p>No recommendations yet.</p>
-{% endfor %}
+    {% if messages %}
+        <div class="fade-in">
+            {% for message in messages %}
+            <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
 
-</body>
-</html>
+    <div class="fade-in delay-2">
+    {% for rec in recommendations %}
+    <div class="card">
+        
+        <div class="outfit-card-header">
+             <h3>Outfit #{{ forloop.counter }}</h3>
+             <div>
+                <a href="{% url 'toggle_favorite' rec.id %}" class="favorite-icon" title="Toggle Favorite">
+                    {% if rec.is_favorite %}❤️{% else %}🤍{% endif %}
+                </a>
+             </div>
+        </div>
+
+        <div class="form-grid mb-1-5">
+            <div class="outfit-item-card">
+                <span class="text-block font-600 mb-1 text-main">Top</span>
+                {% if rec.top_item.image %}
+                    <img src="{{ rec.top_item.image.url }}" class="outfit-item-image" alt="Top">
+                {% else %}
+                    <div class="outfit-item-placeholder">No Image</div>
+                {% endif %}
+                <div>
+                    <strong class="text-block text-main">{{ rec.top_item.item_type }}</strong>
+                    <small class="text-muted">{{ rec.top_item.color }}</small><br>
+                    <span class="status-badge status-neutral">
+                        Wears: {{ rec.top_item.wear_count }} / {{ rec.top_item.category.max_wears }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="outfit-item-card">
+                <span class="text-block font-600 mb-1 text-main">Bottom</span>
+                {% if rec.bottom_item.image %}
+                    <img src="{{ rec.bottom_item.image.url }}" class="outfit-item-image" alt="Bottom">
+                {% else %}
+                    <div class="outfit-item-placeholder">No Image</div>
+                {% endif %}
+                <div>
+                    <strong class="text-block text-main">{{ rec.bottom_item.item_type }}</strong>
+                    <small class="text-muted">{{ rec.bottom_item.color }}</small><br>
+                    <span class="status-badge status-neutral">
+                        Wears: {{ rec.bottom_item.wear_count }} / {{ rec.bottom_item.category.max_wears }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="outfit-footer">
+                    <div class="match-quality">
+                        Match Quality:
+                        {% if rec.match_score >= 0.85 %}
+                            <span class="match-excellent">Excellent ({{ rec.match_score|floatformat:2 }})</span>
+                        {% elif rec.match_score >= 0.7 %}
+                            <span class="match-good">Good ({{ rec.match_score|floatformat:2 }})</span>
+                        {% elif rec.match_score >= 0.5 %}
+                            <span class="match-average">Average ({{ rec.match_score|floatformat:2 }})</span>
+                        {% else %}
+                            <span class="match-poor">Poor ({{ rec.match_score|floatformat:2 }})</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="flex-gap-md">
+                        <a href="{% url 'plan_outfit' rec.id %}" class="btn btn-secondary">
+                           📅 Plan for Later
+                        </a>
+                        <a href="{% url 'wear_outfit' rec.top_item.id rec.bottom_item.id %}"
+                           class="btn btn-primary"
+                           onclick="return confirm('Wear this outfit? This will mark items as dirty.')">
+                           ✅ Wear Now
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+            {% empty %}
+            <div class="empty-state-card">
+                <h3 class="text-main mb-2">No recommendations found.</h3>
+                <p class="text-muted">Try changing the filters or adding more clothes to your wardrobe.</p>
+            </div>
+            {% endfor %}
+            </div>
+
+{% endblock %}

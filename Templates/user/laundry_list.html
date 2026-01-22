@@ -1,42 +1,42 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Laundry Items</title>
-</head>
-<body>
-    <h2>Clothes for Laundry</h2>
+{% extends 'user/base_dashboard.html' %}
 
+{% block content %}
+<div class="page-header fade-in">
+    <h2 class="page-title">🧺 Laundry List</h2>
+    <p class="page-subtitle">Clothes that need cleaning.</p>
+</div>
+
+<div class="items-grid fade-in delay-1">
     {% if laundry_items %}
-        <ul style="list-style:none; padding:0;">
-            {% for item in laundry_items %}
-                <li style="margin-bottom:15px; border:1px solid #ccc; padding:10px;">
-
-                    {% if item.image %}
-                        <img src="{{ item.image.url }}"
-                             alt="Clothing Image"
-                             width="100"
-                             height="100"
-                             style="object-fit:cover; border:1px solid #ddd;">
-                        <br>
-                    {% endif %}
-
-                    <strong>{{ item.item_type }}</strong><br>
-                    Color: {{ item.color }}<br>
-                    Category: {{ item.category.name }}<br>
-
-                    <a href="{% url 'mark_as_clean' item.id %}"
+        {% for item in laundry_items %}
+        <div class="item-card">
+            {% if item.image %}
+            <div class="item-image-container">
+                <img src="{{ item.image.url }}" class="item-image" alt="{{ item.item_type }}">
+            </div>
+            {% endif %}
+            
+            <div class="item-details">
+                <h3 class="item-title">{{ item.item_type }}</h3>
+                <p class="item-subtitle">
+                    {{ item.category.name }} • {{ item.color }}
+                </p>
+                
+                <div class="item-actions">
+                    <a href="{% url 'mark_as_clean' item.id %}" 
                        onclick="return confirm('Mark this item as washed and clean?');"
-                       style="margin-top:8px; display:inline-block;">
-                        Laundry Done
+                       class="btn btn-soft-primary btn-block btn-sm">
+                       ✨ Mark as Clean
                     </a>
-
-                </li>
-            {% endfor %}
-        </ul>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
     {% else %}
-        <p>No clothes pending for laundry.</p>
+        <div class="empty-state-card">
+            <p class="text-muted fs-5 mb-4">No clothes pending for laundry.</p>
+            <a href="{% url 'wardrobe_home' %}" class="btn btn-primary">Go to Wardrobe</a>
+        </div>
     {% endif %}
-
-    <a href="{% url 'user_home' %}">Back to Home</a>
-</body>
-</html>
+</div>
+{% endblock %}
