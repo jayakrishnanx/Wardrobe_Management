@@ -1,0 +1,151 @@
+{% extends 'admin/base_dashboard.html' %}
+
+{% block title %}Pending Approvals - Wardrobe Admin{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h2>Pending Supplier Approvals</h2>
+</div>
+
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Date Joined</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for supplier in pending_suppliers %}
+            <tr>
+                <td>{{ supplier.id }}</td>
+                <td>
+                    <div class="user-info">
+                        {% if supplier.profile_picture %}
+                        <img src="{{ supplier.profile_picture.url }}" alt="avatar" class="avatar-sm">
+                        {% else %}
+                        <div class="avatar-placeholder-sm">{{ supplier.username|first|upper }}</div>
+                        {% endif %}
+                        <span>{{ supplier.username }}</span>
+                    </div>
+                </td>
+                <td>{{ supplier.email }}</td>
+                <td>{{ supplier.date_joined|date:"M d, Y" }}</td>
+                <td>
+                    <div class="action-buttons">
+                        <form action="{% url 'admin_approve_supplier' supplier.id %}" method="POST"
+                            style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-action approve">Approve</button>
+                        </form>
+                        <form action="{% url 'admin_reject_supplier' supplier.id %}" method="POST"
+                            onsubmit="return confirm('Reject this supplier? This will delete the account.');"
+                            style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-action reject">Reject</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center">No pending approvals.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .table-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        overflow-x: auto;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .data-table th {
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .avatar-sm,
+    .avatar-placeholder-sm {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .avatar-placeholder-sm {
+        background: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #495057;
+        font-weight: 600;
+        font-size: 0.8rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-action {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: opacity 0.2s;
+    }
+
+    .btn-action:hover {
+        opacity: 0.9;
+    }
+
+    .btn-action.approve {
+        background: #28a745;
+        color: white;
+    }
+
+    .btn-action.reject {
+        background: #dc3545;
+        color: white;
+    }
+</style>
+{% endblock %}

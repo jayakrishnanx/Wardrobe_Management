@@ -1,0 +1,25 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}MyWon Admin{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/admin_custom.css' %}">
+</head>
+<body>
+  <header class="mw-header">
+    <div class="mw-brand">MyWon Admin</div>
+    <nav class="mw-nav">
+      <a href="{% url 'admin:index' %}" class="mw-link">Dashboard</a>
+      <a href="{% url 'admin:logout' %}" class="mw-link">Logout</a>
+    </nav>
+  </header>
+
+  <main class="mw-main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="mw-footer">© {% now "Y" %} MyWon</footer>
+</body>
+</html>

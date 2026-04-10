@@ -1,0 +1,91 @@
+{% extends 'user/base_dashboard.html' %}
+
+{% block content %}
+<div class="page-header fade-in">
+    <h2 class="page-title">📦 My Orders</h2>
+    <p class="page-subtitle">Track and manage your purchases.</p>
+</div>
+
+<div class="filter-bar fade-in delay-1">
+    <form method="get" class="d-flex align-items-center gap-3 flex-wrap">
+        <label class="fw-bold text-main">Status:</label>
+        <select name="status" onchange="this.form.submit()" class="filter-select">
+            <option value="">All Orders</option>
+            <option value="ordered" {% if selected_status == 'ordered' %}selected{% endif %}>Ordered</option>
+            <option value="cancelled" {% if selected_status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+            <option value="shipped" {% if selected_status == 'shipped' %}selected{% endif %}>Shipped</option>
+            <option value="delivered" {% if selected_status == 'delivered' %}selected{% endif %}>Delivered</option>
+        </select>
+    </form>
+</div>
+
+<div class="d-flex flex-column gap-4 fade-in delay-2">
+    {% if orders %}
+        {% for order in orders %}
+        <div class="card p-0 overflow-hidden">
+            <div class="bg-body p-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <span class="fw-bold me-3 text-main">Order #{{ order.id }}</span>
+                    <span class="text-muted small">{{ order.order_date }}</span>
+                </div>
+                <div>
+                    <span class="fw-bold me-3 text-main">₹{{ order.total_amount }}</span>
+                    <span class="status-badge status-{{ order.status }}">
+                        {{ order.status|title }}
+                    </span>
+                </div>
+            </div>
+            
+            <div class="p-4">
+                <div class="d-flex flex-wrap gap-5 mb-4">
+                    <div class="flex-grow-1 min-w-200">
+                        <h4 class="m-0 mb-2 text-muted small text-uppercase">Shipping Address</h4>
+                        <p class="m-0 text-main">{{ order.address }}</p>
+                    </div>
+                    <div class="flex-grow-1 min-w-200">
+                        <h4 class="m-0 mb-2 text-muted small text-uppercase">Payment</h4>
+                        <p class="m-0 text-main">{{ order.get_payment_mode_display }}</p>
+                    </div>
+                </div>
+                
+                <h4 class="m-0 mb-3 text-muted small text-uppercase">Items</h4>
+                <div class="d-grid gap-3">
+                    {% for item in order.items.all %}
+                    <div class="d-flex align-items-center gap-3 border p-3 rounded bg-body">
+                        {% if item.accessory.image %}
+                            <img src="{{ item.accessory.image.url }}" alt="{{ item.accessory.name }}" 
+                                 class="w-50 h-50 object-fit-cover rounded-md">
+                        {% else %}
+                            <div class="d-flex align-items-center justify-content-center bg-card rounded-md fs-4 w-50 h-50">📦</div>
+                        {% endif %}
+                        <div class="flex-grow-1">
+                            <p class="m-0 fw-bold text-main">{{ item.accessory.name }}</p>
+                            <p class="mt-1 mb-0 small text-muted">Qty: {{ item.quantity }}</p>
+                        </div>
+                        <span class="fw-bold text-main">₹{{ item.price }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                
+                {% if order.status == 'ordered' %}
+                <div class="mt-4 text-end">
+                    <a href="{% url 'cancel_order' order.id %}" 
+                       onclick="return confirm('Are you sure you want to cancel this order?');"
+                       class="btn btn-soft-danger">
+                       Cancel Order
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state-card fade-in">
+            <div class="fs-1 mb-3">📦</div>
+            <p class="text-muted fs-5 mb-4">No orders found.</p>
+            <a href="{% url 'shop_accessories' %}" class="btn btn-primary">Start Shopping</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

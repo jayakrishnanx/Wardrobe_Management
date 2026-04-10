@@ -1,0 +1,25 @@
+{% extends 'user/base_dashboard.html' %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="page-header text-center">
+        <h2 class="page-title">➕ Add New Item</h2>
+        <p class="page-subtitle">Upload details about your new cloth.</p>
+    </div>
+
+    <div class="card card-centered">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-group-stack">
+                {{ form.as_p }}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-block">Add Item</button>
+                <a href="{% url 'wardrobe_home' %}" class="btn btn-secondary btn-block">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

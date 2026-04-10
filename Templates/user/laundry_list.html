@@ -1,0 +1,66 @@
+{% extends 'user/base_dashboard.html' %}
+
+{% block content %}
+<div class="page-header fade-in">
+    <h2 class="page-title">🧺 Laundry List</h2>
+    <p class="page-subtitle">Clothes that need cleaning.</p>
+</div>
+
+<form method="POST" action="{% url 'bulk_mark_as_clean' %}" id="bulkCleanForm">
+    {% csrf_token %}
+    {% if laundry_items %}
+    <div class="bulk-action-bar" style="display: flex; gap: 1rem; justify-content: flex-end; margin-bottom: 1rem;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="toggleSelectAll('bulkCleanForm')">Select All</button>
+        <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('Mark selected items as clean?');">✨ Mark Selected as Clean</button>
+    </div>
+    {% endif %}
+
+<div class="items-grid fade-in delay-1">
+    {% if laundry_items %}
+        {% for item in laundry_items %}
+        <div class="item-card" style="position: relative;">
+            <input type="checkbox" name="item_ids" value="{{ item.id }}" class="bulk-checkbox" style="position: absolute; top: 15px; right: 15px; z-index: 10; width: 22px; height: 22px; cursor: pointer; accent-color: var(--primary-color);">
+            
+            {% if item.image %}
+            <div class="item-image-container">
+                <img src="{{ item.image.url }}" class="item-image" alt="{{ item.item_type }}">
+            </div>
+            {% endif %}
+            
+            <div class="item-details">
+                <h3 class="item-title">{{ item.item_type }}</h3>
+                <p class="item-subtitle">
+                    {{ item.category.name }} • {{ item.color }}
+                </p>
+                
+                <div class="item-actions">
+                    <a href="{% url 'mark_as_clean' item.id %}" 
+                       onclick="return confirm('Mark this item as washed and clean?');"
+                       class="btn btn-soft-primary btn-block btn-sm">
+                       ✨ Mark as Clean
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state-card">
+            <p class="text-muted fs-5 mb-4">No clothes pending for laundry.</p>
+            <a href="{% url 'wardrobe_home' %}" class="btn btn-primary">Go to Wardrobe</a>
+        </div>
+    {% endif %}
+</div>
+</form>
+
+<script>
+    function toggleSelectAll(formId) {
+        var form = document.getElementById(formId);
+        var checkboxes = form.querySelectorAll('input[type="checkbox"]');
+        var allChecked = true;
+        
+        checkboxes.forEach(cb => { if(!cb.checked) allChecked = false; });
+        
+        checkboxes.forEach(cb => { cb.checked = !allChecked; });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends 'user/base_dashboard.html' %}
+
+{% block content %}
+<div class="page-header fade-in">
+    <h2 class="page-title">✏️ Edit Profile</h2>
+    <p class="page-subtitle">Update your personal information.</p>
+</div>
+
+<div class="card card-centered fade-in delay-1 mw-800">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="form-grid mb-4">
+            <div class="form-group">
+                <label class="form-label">First Name</label>
+                <input type="text" name="first_name" value="{{ user.first_name }}" class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Last Name</label>
+                <input type="text" name="last_name" value="{{ user.last_name }}" class="form-control">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" name="email" value="{{ user.email }}" class="form-control">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Phone Number</label>
+            <input type="text" name="phone_number" value="{{ user.phone_number|default:'' }}" class="form-control">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Profile Picture</label>
+            <input type="file" name="profile_picture" class="form-control">
+            {% if user.profile_picture %}
+                <p class="text-muted mt-2 small">Current: {{ user.profile_picture.name }}</p>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Address</label>
+            <textarea name="address" rows="3" class="form-control">{{ user.address|default:'' }}</textarea>
+        </div>
+
+        <div class="form-group mb-5">
+            <label class="form-label">Bio</label>
+            <textarea name="bio" rows="4" class="form-control">{{ user.bio|default:'' }}</textarea>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="{% url 'user_profile' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

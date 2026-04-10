@@ -1,0 +1,144 @@
+{% extends 'admin/base_dashboard.html' %}
+
+{% block title %}Edit Recommendation - Wardrobe Admin{% endblock %}
+
+{% block content %}
+<div class="edit-container">
+    <div class="dashboard-header">
+        <h2>Edit Recommendation #{{ rec.id }}</h2>
+        <a href="{% url 'admin_recommendations_list' %}" class="back-link">← Back to List</a>
+    </div>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="edit-card">
+        <div class="outfit-preview">
+            <div class="item-card">
+                <h4>Top</h4>
+                {% if rec.top_item.image %}
+                <img src="{{ rec.top_item.image.url }}" alt="Top">
+                {% else %}
+                <div class="no-image">No Image</div>
+                {% endif %}
+                <p>{{ rec.top_item.item_type }} ({{ rec.top_item.color }})</p>
+            </div>
+
+            <div class="plus-sign">+</div>
+
+            <div class="item-card">
+                <h4>Bottom</h4>
+                {% if rec.bottom_item.image %}
+                <img src="{{ rec.bottom_item.image.url }}" alt="Bottom">
+                {% else %}
+                <div class="no-image">No Image</div>
+                {% endif %}
+                <p>{{ rec.bottom_item.item_type }} ({{ rec.bottom_item.color }})</p>
+            </div>
+        </div>
+
+        <form method="POST" class="edit-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="match_score">Match Score (0.0 - 1.0)</label>
+                <input type="number" step="0.01" min="0" max="1" name="match_score" id="match_score"
+                    value="{{ rec.match_score }}" required>
+                <small>Higher score means better compatibility.</small>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-save">Update Score</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .edit-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .back-link {
+        text-decoration: none;
+        color: #666;
+        font-weight: 500;
+    }
+
+    .edit-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .outfit-preview {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .item-card {
+        text-align: center;
+    }
+
+    .item-card img {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+
+    .plus-sign {
+        font-size: 2rem;
+        color: #ccc;
+        font-weight: bold;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 1rem;
+    }
+
+    .btn-save {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    .btn-save:hover {
+        background: #0056b3;
+    }
+</style>
+{% endblock %}

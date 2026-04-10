@@ -1,0 +1,98 @@
+{% extends 'user/base_dashboard.html' %}
+
+{% block content %}
+
+<div class="page-header">
+    <h2 class="page-title">🧺 Laundry & Usage</h2>
+    <p class="page-subtitle">Track usage and laundry status of your clothes.</p>
+</div>
+
+<div class="filter-bar fade-in">
+    <form method="get" class="filter-form">
+        <label for="category" class="form-label mb-0">Filter by Category:</label>
+        <select name="category" class="filter-select">
+            <option value="">All Categories</option>
+            {% for c in categories %}
+                <option value="{{ c.id }}" {% if request.GET.category == c.id|stringformat:"s" %}selected{% endif %}>
+                    {{ c.name }}
+                </option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </form>
+</div>
+
+<form method="POST" action="{% url 'bulk_send_to_laundry' %}" id="bulkLaundryForm">
+    {% csrf_token %}
+    <div class="bulk-action-bar" style="display: flex; gap: 1rem; justify-content: flex-end; margin-bottom: 1rem;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="toggleSelectAll('bulkLaundryForm')">Select All</button>
+        <button type="submit" class="btn btn-warning btn-sm" onclick="return confirm('Send selected items to laundry?');">🧺 Send Selected to Laundry</button>
+    </div>
+
+<div class="items-grid fade-in delay-2">
+    {% for item in items %}
+    <div class="item-card" style="position: relative;">
+        {% if item.clean_status %}
+        <input type="checkbox" name="item_ids" value="{{ item.id }}" class="bulk-checkbox" style="position: absolute; top: 15px; right: 15px; z-index: 10; width: 22px; height: 22px; cursor: pointer; accent-color: var(--warning-color);">
+        {% endif %}
+        {% if item.image %}
+        <div class="item-image-container">
+            <img src="{{ item.image.url }}" class="item-image" alt="{{ item.item_type }}">
+        </div>
+        {% endif %}
+        
+        <div class="item-details">
+            <div class="item-header">
+                <div>
+                    <h3 class="item-title">{{ item.item_type }}</h3>
+                    <span class="item-subtitle">{{ item.category.name }} • {{ item.color }}</span>
+                </div>
+                <div class="wear-count-box">
+                    <span class="wear-label">Wear Count</span>
+                    <span class="wear-value">{{ item.wear_count }}</span>
+                </div>
+            </div>
+            
+            <div class="item-status">
+                {% if item.clean_status %}
+                    <span class="status-badge status-clean">✨ Clean</span>
+                {% else %}
+                    <span class="status-badge status-dirty">🧺 Needs Laundry</span>
+                {% endif %}
+            </div>
+
+            <div class="item-actions">
+                {% if item.clean_status %}
+                    <a href="{% url 'mark_as_worn' item.id %}" class="btn btn-soft-primary btn-block btn-sm">Mark as Worn</a>
+                    <a href="{% url 'send_to_laundry' item.id %}" 
+                       onclick="return confirm('Send this item to laundry?');"
+                       class="btn btn-soft-warning btn-block btn-sm">
+                       Send to Laundry
+                    </a>
+                {% else %}
+                    <button disabled class="btn btn-disabled btn-block btn-sm">Dirty (Needs Wash)</button>
+                    <span class="item-laundry-note">Item is already in laundry list or dirty.</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state-card">
+        <p class="text-muted">No clothes found in this category.</p>
+    </div>
+    {% endfor %}
+</div>
+</form>
+
+<script>
+    function toggleSelectAll(formId) {
+        var form = document.getElementById(formId);
+        var checkboxes = form.querySelectorAll('input[type="checkbox"]');
+        var allChecked = true;
+        
+        checkboxes.forEach(cb => { if(!cb.checked) allChecked = false; });
+        
+        checkboxes.forEach(cb => { cb.checked = !allChecked; });
+    }
+</script>
+{% endblock %}

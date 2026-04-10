@@ -1,0 +1,33 @@
+{% extends 'user/base_dashboard.html' %}
+
+{% block title %}Plan Outfit - Wardrobe Manager{% endblock %}
+
+{% block content %}
+
+<div class="page-header fade-in">
+    <h2 class="page-title">📅 Plan for Later</h2>
+    <p class="page-subtitle">Pick a date to wear this outfit.</p>
+</div>
+
+<div class="card card-centered fade-in delay-1">
+    
+    <div class="bg-body p-4 rounded mb-4 text-center border">
+        <p class="my-2 fs-5 text-main"><b>Top:</b> {{ outfit.top_item.item_type }} <span class="text-muted">({{ outfit.top_item.color }})</span></p>
+        <p class="my-2 fs-5 text-main"><b>Bottom:</b> {{ outfit.bottom_item.item_type }} <span class="text-muted">({{ outfit.bottom_item.color }})</span></p>
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label class="form-label" for="date">Select Date</label>
+            <input type="date" name="date" class="form-control" required min="{{ now|date:'Y-m-d' }}">
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary btn-block">Save to Planner</button>
+            <a href="{% url 'recommend_outfit' %}" class="btn btn-outline btn-block">Cancel</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

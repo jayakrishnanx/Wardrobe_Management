@@ -1,0 +1,26 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+  <section class="mw-dashboard">
+    <h2 class="mw-welcome">Welcome, {{ user.get_short_name|default:user.username }}</h2>
+
+    <p class="mw-intro">This is your custom MyWon admin dashboard. Use the links below to navigate the admin.</p>
+
+    <div class="mw-app-grid">
+      {% if app_list %}
+        {% for app in app_list %}
+          <div class="mw-app">
+            <h3>{{ app.name }}</h3>
+            <ul>
+              {% for model in app.models %}
+                <li><a href="{{ model.admin_url }}">{{ model.name }}</a></li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p>No registered apps.</p>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

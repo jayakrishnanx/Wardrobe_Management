@@ -1,0 +1,181 @@
+{% extends 'user/base_dashboard.html' %}
+
+{% block title %}Recommendations - Wardrobe Manager{% endblock %}
+
+{% block content %}
+
+<div class="page-header fade-in">
+    <h2 class="page-title">✨ Outfit Recommendations</h2>
+    <p class="page-subtitle">Get personalized outfit suggestions based on your wardrobe.</p>
+</div>
+
+<div class="filter-bar fade-in delay-1">
+    <form method="post" class="filter-form">
+        {% csrf_token %}
+
+        <div class="flex-grow-1" style="width: 100%;">
+            <p class="text-muted" style="margin: 0; margin-bottom: 0.5rem;">Describe the occasion or what you're looking for:</p>
+            <textarea name="user_prompt" class="form-control" rows="2" style="width: 100%; border-radius: 8px; font-family: inherit; resize: vertical;" placeholder="E.g., Suggest an outfit for a summer wedding, prefer light shades..."></textarea>
+        </div>
+
+        <div class="align-end flex-gap-sm">
+            <button type="submit" class="btn btn-primary">✨ Generate New Recommendations</button>
+        </div>
+    </form>
+</div>
+
+{% if messages %}
+<div class="fade-in">
+    {% for message in messages %}
+    <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if ai_chat_message %}
+<div class="ai-chat-bubble fade-in delay-1">
+    <div class="chat-avatar">🤖</div>
+    <div class="chat-content">
+        <h4 class="chat-title">AI Stylist</h4>
+        <div class="chat-message">{{ ai_chat_message|linebreaks }}</div>
+    </div>
+</div>
+{% endif %}
+
+<div class="fade-in delay-2">
+    {% for rec in recommendations %}
+    <div class="card">
+
+        <div class="outfit-card-header">
+            <h3>Outfit #{{ forloop.counter }}</h3>
+            <div>
+                <a href="{% url 'toggle_favorite' rec.id %}" class="favorite-icon" title="Toggle Favorite">
+                    {% if rec.is_favorite %}❤️{% else %}🤍{% endif %}
+                </a>
+            </div>
+        </div>
+
+        <div class="form-grid mb-1-5">
+            <div class="outfit-item-card">
+                <span class="text-block font-600 mb-1 text-main">Top</span>
+                {% if rec.top_item.image %}
+                <img src="{{ rec.top_item.image.url }}" class="outfit-item-image" alt="Top">
+                {% else %}
+                <div class="outfit-item-placeholder">No Image</div>
+                {% endif %}
+                <div>
+                    <strong class="text-block text-main">{{ rec.top_item.item_type }}</strong>
+                    <small class="text-muted">{{ rec.top_item.color }}</small><br>
+                    <span class="status-badge status-neutral">
+                        Wears: {{ rec.top_item.wear_count }} / {{ rec.top_item.category.max_wears }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="outfit-item-card">
+                <span class="text-block font-600 mb-1 text-main">Bottom</span>
+                {% if rec.bottom_item.image %}
+                <img src="{{ rec.bottom_item.image.url }}" class="outfit-item-image" alt="Bottom">
+                {% else %}
+                <div class="outfit-item-placeholder">No Image</div>
+                {% endif %}
+                <div>
+                    <strong class="text-block text-main">{{ rec.bottom_item.item_type }}</strong>
+                    <small class="text-muted">{{ rec.bottom_item.color }}</small><br>
+                    <span class="status-badge status-neutral">
+                        Wears: {{ rec.bottom_item.wear_count }} / {{ rec.bottom_item.category.max_wears }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="outfit-footer">
+            <div class="match-quality">
+                Match Quality:
+                {% if rec.match_score >= 0.85 %}
+                <span class="match-excellent">Excellent ({{ rec.match_score|floatformat:2 }})</span>
+                {% elif rec.match_score >= 0.7 %}
+                <span class="match-good">Good ({{ rec.match_score|floatformat:2 }})</span>
+                {% elif rec.match_score >= 0.5 %}
+                <span class="match-average">Average ({{ rec.match_score|floatformat:2 }})</span>
+                {% else %}
+                <span class="match-poor">Poor ({{ rec.match_score|floatformat:2 }})</span>
+                {% endif %}
+            </div>
+
+            <div class="flex-gap-md">
+                <a href="{% url 'plan_outfit' rec.id %}" class="btn btn-secondary">
+                    📅 Plan for Later
+                </a>
+                <a href="{% url 'wear_outfit' rec.top_item.id rec.bottom_item.id %}" class="btn btn-primary"
+                    onclick="return confirm('Wear this outfit? This will mark items as dirty.')">
+                    ✅ Wear Now
+                </a>
+            </div>
+        </div>
+
+        <!-- Feedback Section -->
+        <!-- Feedback Section -->
+        <div class="feedback-section mt-1">
+            <details>
+                <summary class="btn btn-sm btn-outline" style="list-style: none; cursor: pointer;">📝 Rate & Review
+                </summary>
+                <form action="{% url 'submit_feedback' rec.id %}" method="post" class="mt-1 flex-col gap-sm">
+                    {% csrf_token %}
+
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <input type="number" name="rating" min="1" max="5" step="0.5" placeholder="Score (1-5)"
+                            class="form-input" required
+                            style="width: 120px; padding: 0.5rem; border-radius: 8px; border: 1px solid #ddd;">
+                        <span class="text-muted text-sm">Rate from 1 (Bad) to 5 (Excellent)</span>
+                    </div>
+
+                    <textarea name="feedback_text" rows="2"
+                        placeholder="What do you think about this combination? Let the admin know..." class="form-input"
+                        style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #ddd; font-family: inherit; resize: vertical;"></textarea>
+
+                    <div class="align-end">
+                        <button type="submit" class="btn btn-primary btn-sm">Submit Feedback</button>
+                    </div>
+                </form>
+            </details>
+        </div>
+
+    </div>
+    {% empty %}
+    <div class="empty-state-card">
+        <h3 class="text-main mb-2">No recommendations found.</h3>
+        <p class="text-muted">Try changing the filters or adding more clothes to your wardrobe.</p>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterForm = document.querySelector('.filter-form');
+    if (filterForm) {
+        filterForm.addEventListener('submit', function(e) {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                // Prevent double-submit
+                if (submitBtn.disabled) {
+                    e.preventDefault();
+                    return;
+                }
+                
+                // Show thinking state
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '✨ AI is Thinking...';
+                submitBtn.style.opacity = '0.7';
+                submitBtn.style.cursor = 'not-allowed';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

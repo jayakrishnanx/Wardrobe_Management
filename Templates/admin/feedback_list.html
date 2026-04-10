@@ -1,0 +1,199 @@
+{% extends 'admin/base_dashboard.html' %}
+
+{% block title %}User Feedback - Wardrobe Admin{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h2>User Feedback</h2>
+</div>
+
+<div class="table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>User</th>
+                <th>Outfit (Top + Bottom)</th>
+                <th>System Score</th>
+                <th>User Rating</th>
+                <th>Comments</th>
+                <th>✨ AI Review</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for feedback in feedbacks %}
+            <tr>
+                <td>{{ feedback.created_at|date:"M d, H:i" }}</td>
+                <td>{{ feedback.user.username }}</td>
+                <td>
+                    <div class="outfit-mini">
+                        {{ feedback.recommendation.top_item.item_type }} +
+                        {{ feedback.recommendation.bottom_item.item_type }}
+                    </div>
+                </td>
+                <td>{{ feedback.recommendation.match_score|floatformat:2 }}</td>
+                <td>
+                    <span
+                        class="rating-badge {% if feedback.rating > 0.7 %}high{% elif feedback.rating < 0.4 %}low{% endif %}">
+                        {{ feedback.rating }}
+                    </span>
+                </td>
+                <td class="comment-cell">
+                    {{ feedback.feedback_text|default:"-" }}
+                </td>
+                <td class="ai-review-cell">
+                    {% if feedback.ai_review %}
+                        <div class="ai-reasoning">
+                            {{ feedback.ai_review }}
+                        </div>
+                    {% else %}
+                        <span class="text-muted small">Not reviewed yet</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="d-flex flex-column gap-2">
+                        <a href="{% url 'admin_edit_recommendation' feedback.recommendation.id %}" class="btn-sm btn-edit">
+                            Adjust Score
+                        </a>
+                        <a href="{% url 'admin_analyze_feedback' feedback.id %}" class="btn-sm btn-ai">
+                            ✨ AI Analyze
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="text-center">No feedback received yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .table-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        overflow-x: auto;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .data-table th {
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .rating-badge {
+        font-weight: bold;
+        padding: 2px 6px;
+        border-radius: 4px;
+        background: #eee;
+    }
+
+    .rating-badge.high {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .rating-badge.low {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .comment-cell {
+        max-width: 250px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: #666;
+        font-style: italic;
+    }
+
+    .btn-sm.btn-edit {
+        text-decoration: none;
+        background: #007bff;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+    }
+
+    .btn-sm.btn-edit:hover {
+        background: #0056b3;
+    }
+
+    .btn-sm.btn-ai {
+        text-decoration: none;
+        background: #6f42c1;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        border: none;
+        cursor: pointer;
+        display: inline-block;
+        text-align: center;
+    }
+
+    .btn-sm.btn-ai:hover {
+        background: #59359a;
+    }
+
+    .d-flex { display: flex; }
+    .flex-column { flex-direction: column; }
+    .gap-2 { gap: 0.5rem; }
+
+    .ai-review-cell {
+        max-width: 300px;
+    }
+
+    .ai-reasoning {
+        font-size: 0.85rem;
+        color: #6f42c1;
+        background: #fdf2ff;
+        padding: 0.75rem;
+        border-radius: 8px;
+        border-left: 3px solid #6f42c1;
+        line-height: 1.4;
+    }
+
+    .text-muted { color: #6c757d; }
+    .small { font-size: 0.8rem; }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const aiButtons = document.querySelectorAll('.btn-ai');
+    aiButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            if (this.classList.contains('disabled')) {
+                e.preventDefault();
+                return;
+            }
+            
+            // Show loading state
+            this.classList.add('disabled');
+            this.innerHTML = '✨ Analyzing...';
+            this.style.opacity = '0.6';
+            this.style.pointerEvents = 'none';
+        });
+    });
+});
+</script>
+{% endblock %}
