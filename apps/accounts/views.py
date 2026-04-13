@@ -326,4 +326,13 @@ def admin_analyze_feedback(request, pk):
     if not success:
         messages.error(request, message)
         
-    return redirect('admin_feedback_list')
+
+def run_migrations(request):
+    from django.core import management
+    from django.http import HttpResponse
+    
+    try:
+        management.call_command('migrate', no_input=True)
+        return HttpResponse("Migrations successful!")
+    except Exception as e:
+        return HttpResponse(f"Migrations failed: {str(e)}", status=500)
