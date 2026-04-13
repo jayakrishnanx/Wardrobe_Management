@@ -18,10 +18,10 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'jk')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.2.102', '.pythonanywhere.com', '.onrender.com', '*']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.2.102', '.pythonanywhere.com', '.onrender.com', '.koyeb.app', '.vercel.app', '*']
 
 # CSRF & Security for Production
-CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com', 'https://*.pythonanywhere.com']
+CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com', 'https://*.pythonanywhere.com', 'https://*.koyeb.app', 'https://*.vercel.app']
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_SSL_REDIRECT = os.environ.get('DJANGO_DEBUG', 'True') == 'False'
 
