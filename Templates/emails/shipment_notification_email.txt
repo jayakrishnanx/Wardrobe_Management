@@ -1,0 +1,13 @@
+Hi {{ username }},
+
+Great news! Your Order #{{ order_id }} has been marked as shipped by the supplier.
+
+Order Details:
+Order ID: #{{ order_id }}
+Total Amount: ₹{{ total_amount }}
+Status: Shipped
+
+You can track your order status in your dashboard: {{ orders_url }}
+
+Thank you for shopping with us!
+Wardrobe Manager Team

@@ -56,6 +56,13 @@ def recommend_outfit(request):
         else:
             recommendations = recommendations.none()
 
+    # 🔹 Ensure accessories are recommended for the shown outfits
+    # (In case they were generated before this feature was enabled)
+    from .utils import recommend_accessories
+    for rec in recommendations[:20]: # Only do it for the top ones to save time
+        if not rec.accessory_recommendations.exists():
+            recommend_accessories(rec, rec.top_item, rec.bottom_item)
+
     return render(request, 'user/recommend_fixed.html', {
         'recommendations': recommendations,
         'ai_chat_message': ai_chat_message,

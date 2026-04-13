@@ -11,6 +11,7 @@
     
     <!-- Main CSS -->
     {% load static %}
+    <link rel="icon" type="image/png" href="{% static 'assets/img/favicon.png' %}">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
 </head>
 <body>
@@ -58,7 +59,10 @@
 
             <li class="nav-section-label">Account</li>
             <li class="nav-item">
-                <a href="{% url 'logout' %}" class="nav-link-logout">
+                <form method="post" action="{% url 'logout' %}" id="logout-form-supplier" style="display: none;">
+                    {% csrf_token %}
+                </form>
+                <a href="javascript:void(0)" onclick="document.getElementById('logout-form-supplier').submit();" class="nav-link-logout">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                     Logout
                 </a>

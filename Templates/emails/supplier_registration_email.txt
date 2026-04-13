@@ -1,0 +1,8 @@
+Hi {{ username }},
+
+Thank you for registering as a supplier with Wardrobe Manager.
+
+Your account is currently pending review by our administration team. We will notify you via email as soon as your account has been approved.
+
+Thank you,
+Wardrobe Manager Team

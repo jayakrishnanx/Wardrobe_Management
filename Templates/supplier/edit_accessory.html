@@ -59,6 +59,15 @@
         </div>
 
         <div class="form-group">
+            <label class="form-label">Target Gender</label>
+            <select name="gender" class="form-control" required>
+                <option value="male" {% if accessory.gender == 'male' %}selected{% endif %}>Male</option>
+                <option value="female" {% if accessory.gender == 'female' %}selected{% endif %}>Female</option>
+                <option value="other" {% if accessory.gender == 'other' %}selected{% endif %}>Other</option>
+            </select>
+        </div>
+
+        <div class="form-group">
             <label class="form-label">Product Image (Leave blank to keep current)</label>
             {% if accessory.image %}
                 <div>

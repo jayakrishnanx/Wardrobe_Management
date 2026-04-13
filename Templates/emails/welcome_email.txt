@@ -1,0 +1,12 @@
+Welcome to Wardrobe Management, {{ username }}!
+
+We're thrilled to have you join our community. Your smart wardrobe journey starts here.
+
+Our platform helps you organize your clothes, plan your daily outfits with AI, and keep your wardrobe fresh with laundry reminders.
+
+Get started by logging into your dashboard: {{ login_url }}
+
+If you have any questions, feel free to reply to this email.
+
+Happy Styling!
+The Wardrobe Team

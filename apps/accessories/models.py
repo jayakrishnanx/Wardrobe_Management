@@ -22,6 +22,18 @@ class Accessory(models.Model):
     occasion = models.ForeignKey(Occasion, on_delete=models.CASCADE)
     season = models.ForeignKey(Season, on_delete=models.CASCADE)
 
+    GENDER_CHOICES = (
+        ('male', 'Male'),
+        ('female', 'Female'),
+        ('other', 'Other'),
+    )
+
+    gender = models.CharField(
+        max_length=10,
+        choices=GENDER_CHOICES,
+        default='other'
+    )
+
     price = models.DecimalField(
         max_digits=8, 
         decimal_places=2,

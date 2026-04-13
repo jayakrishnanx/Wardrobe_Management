@@ -5,6 +5,7 @@ from django.http import HttpRequest, HttpResponse
 from django.db import transaction
 from .models import Order, OrderItem
 from accessories.models import Accessory
+from accounts.utils import send_order_confirmation_email
 
 @login_required
 def user_orders(request: HttpRequest) -> HttpResponse:
@@ -34,6 +35,9 @@ def cancel_order(request: HttpRequest, order_id: int) -> HttpResponse:
     if order.status == 'ordered':
         order.status = 'cancelled'
         order.save()
+        messages.success(request, "Order cancelled successfully.")
+    else:
+        messages.error(request, f"Cannot cancel order as it is already {order.status}.")
 
     return redirect('user_orders')
 
@@ -106,6 +110,13 @@ def place_order(request: HttpRequest) -> HttpResponse:
             accessory.stock -= quantity
             accessory.save()
 
+            # Calculate expected delivery date (random 3-7 days)
+            import random
+            from datetime import timedelta
+            from django.utils import timezone
+            days = random.randint(3, 7)
+            delivery_date = timezone.now().date() + timedelta(days=days)
+
             # Create Order
             order = Order.objects.create(
                 user=request.user,
@@ -116,7 +127,8 @@ def place_order(request: HttpRequest) -> HttpResponse:
                 state=state,
                 pincode=pincode,
                 payment_mode=payment_mode,
-                total_amount=accessory.price * quantity
+                total_amount=accessory.price * quantity,
+                expected_delivery_date=delivery_date
             )
 
             # Create Order Item
@@ -129,6 +141,9 @@ def place_order(request: HttpRequest) -> HttpResponse:
 
             # Clear session data
             del request.session['order_data']
+            
+            # Send digital bill email
+            send_order_confirmation_email(order)
             
             messages.success(request, "Order placed successfully!")
             return redirect('order_confirmation', order_id=order.id)

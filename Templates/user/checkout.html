@@ -65,31 +65,37 @@
                 <div class="form-grid mb-3">
                     <div class="form-group">
                         <label class="form-label">Full Name</label>
-                        <input type="text" name="full_name" required class="form-control">
+                        <input type="text" name="full_name" required class="form-control" id="id_full_name">
+                        <div class="invalid-feedback">Please enter your full name.</div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Phone Number</label>
-                        <input type="tel" name="phone" required class="form-control">
+                        <input type="tel" name="phone" required class="form-control" id="id_phone" placeholder="10-digit number">
+                        <div class="invalid-feedback">Please enter a valid 10-digit phone number.</div>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Address</label>
-                    <textarea name="address" required rows="2" placeholder="Street address, apartment, etc." class="form-control"></textarea>
+                    <textarea name="address" required rows="2" placeholder="Street address, apartment, etc." class="form-control" id="id_address"></textarea>
+                    <div class="invalid-feedback">Please enter your delivery address.</div>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group">
                         <label class="form-label">City</label>
-                        <input type="text" name="city" required class="form-control">
+                        <input type="text" name="city" required class="form-control" id="id_city">
+                        <div class="invalid-feedback">Required.</div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">State</label>
-                        <input type="text" name="state" required class="form-control">
+                        <input type="text" name="state" required class="form-control" id="id_state">
+                        <div class="invalid-feedback">Required.</div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Pincode</label>
-                        <input type="text" name="pincode" required class="form-control">
+                        <input type="text" name="pincode" required class="form-control" id="id_pincode" placeholder="6 digits">
+                        <div class="invalid-feedback">Invalid Pincode (6 digits).</div>
                     </div>
                 </div>
             </div>
@@ -149,6 +155,38 @@
     document.getElementById('paymentForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
+        let isValid = true;
+        const form = this;
+        
+        // Helper to show/hide errors
+        function validate(id, condition) {
+            const input = document.getElementById(id);
+            if (!condition) {
+                input.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                input.classList.remove('is-invalid');
+            }
+        }
+
+        // 1. Validate Fields
+        validate('id_full_name', form.full_name.value.trim().length > 0);
+        validate('id_phone', /^\d{10}$/.test(form.phone.value.trim()));
+        validate('id_address', form.address.value.trim().length > 0);
+        validate('id_city', form.city.value.trim().length > 0);
+        validate('id_state', form.state.value.trim().length > 0);
+        validate('id_pincode', /^\d{6}$/.test(form.pincode.value.trim()));
+
+        if (!isValid) {
+            // Shake the first invalid field or scroll to it
+            const firstInvalid = document.querySelector('.is-invalid');
+            if (firstInvalid) {
+                firstInvalid.focus();
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            return;
+        }
+
         // Show Overlay
         const overlay = document.getElementById('paymentOverlay');
         overlay.style.display = 'flex';
@@ -162,12 +200,12 @@
         
         setTimeout(() => {
             statusText.innerText = "Confirming order...";
-        }, 2500);
+        }, 2200);
         
-        // Submit after 4 seconds
+        // Submit after 3.5 seconds
         setTimeout(() => {
-            this.submit();
-        }, 3500);
+            form.submit();
+        }, 3200);
     });
     
     // Add active class to selected payment method

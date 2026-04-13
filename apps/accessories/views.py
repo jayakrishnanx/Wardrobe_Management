@@ -79,6 +79,7 @@ def edit_accessory(request, accessory_id):
         accessory.name = request.POST['name']
         accessory.price = request.POST['price']
         accessory.category = request.POST['category']
+        accessory.gender = request.POST.get('gender', accessory.gender)
         
         # Handle Occasion and Season if they are provided (assuming IDs)
         if 'occasion' in request.POST and request.POST['occasion']:
@@ -125,6 +126,8 @@ def supplier_orders(request):
     })
 
 
+from accounts.utils import send_shipment_notification_email
+
 @role_required('supplier')
 def mark_shipped(request, order_id):
     order = get_object_or_404(Order, id=order_id)
@@ -132,6 +135,11 @@ def mark_shipped(request, order_id):
     if order.status == 'ordered':
         order.status = 'shipped'
         order.save()
+
+        # Generate automated email notification using utility
+        send_shipment_notification_email(order)
+        
+        messages.success(request, f"Order #{order.id} marked as shipped and notification email sent.")
 
     return redirect('supplier_orders')
 
@@ -154,6 +162,7 @@ def add_accessories(request):
                 supplier=request.user,
                 name=name,
                 category=category,
+                gender=request.POST.get('gender', 'other'),
                 occasion_id=occasion_id,
                 season_id=season_id,
                 price=price,

@@ -1,8 +1,12 @@
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load environment variables from .env
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -13,7 +17,8 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'jk')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.2.102', 'localhost', '127.0.0.1']
+
 
 
 # Application definition
@@ -200,6 +205,12 @@ JAZZMIN_UI_TWEAKS = {
     }
 }
 
-# NOTE: jazzmin removed so project uses the default Django admin or your custom admin
-# To provide your own admin theme named "mywon", add custom admin templates under
-# `templates/admin/` and static assets under `static/admin/` or your preferred paths.
+# Email Settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+

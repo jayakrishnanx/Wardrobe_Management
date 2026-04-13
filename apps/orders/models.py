@@ -51,6 +51,7 @@ class Order(models.Model):
         choices=STATUS_CHOICES,
         default='ordered'
     )
+    expected_delivery_date = models.DateField(null=True, blank=True)
     order_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

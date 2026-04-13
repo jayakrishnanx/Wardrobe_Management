@@ -1,0 +1,10 @@
+Hi {{ username }},
+
+Congratulations! Your supplier account has been approved by our administration team.
+
+You can now log in to your dashboard to start listing your accessories and managing your stock.
+
+Login Here: {{ login_url }}
+
+Welcome to the team!
+Wardrobe Manager Team

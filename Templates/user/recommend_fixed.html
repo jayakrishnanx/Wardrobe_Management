@@ -1,6 +1,65 @@
 {% extends 'user/base_dashboard.html' %}
 
 {% block title %}Recommendations - Wardrobe Manager{% endblock %}
+{% block extra_css %}
+<style>
+.accessory-grid {
+    display: flex;
+    overflow-x: auto;
+    gap: 1rem;
+    padding-bottom: 0.5rem;
+    scrollbar-width: thin;
+    scrollbar-color: #215e61 #f0f0f0;
+}
+.accessory-rec-card {
+    flex: 0 0 160px;
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.2s;
+}
+.accessory-rec-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+.accessory-rec-img {
+    height: 120px;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.accessory-rec-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.accessory-rec-info {
+    padding: 0.75rem;
+}
+.accessory-rec-name {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #233d4d;
+    margin-bottom: 0.25rem;
+}
+.accessory-rec-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.accessory-rec-price {
+    font-size: 0.8rem;
+    color: #fe7f2d;
+    font-weight: bold;
+}
+.accessory-placeholder {
+    font-size: 2rem;
+}
+</style>
+{% endblock %}
 
 {% block content %}
 
@@ -91,6 +150,38 @@
             </div>
         </div>
 
+        <!-- Suggested Accessories from Suppliers -->
+        {% with acc_recs=rec.accessory_recommendations.all %}
+        {% if acc_recs %}
+        <div class="accessory-recommendations mt-1-5">
+            <h4 class="text-main mb-1" style="font-size: 0.95rem; border-top: 1px solid #eee; padding-top: 1rem;">
+                💫 Complete the Look (Supplier Suggestions)
+            </h4>
+            <div class="accessory-grid">
+                {% for ar in acc_recs %}
+                <a href="{% url 'shop_accessories' %}?q={{ ar.accessory.name }}" class="accessory-rec-card" style="text-decoration: none; display: block;">
+                    <div class="accessory-rec-img">
+                        {% if ar.accessory.image %}
+                        <img src="{{ ar.accessory.image.url }}" alt="{{ ar.accessory.name }}">
+                        {% else %}
+                        <div class="accessory-placeholder">🎁</div>
+                        {% endif %}
+                    </div>
+                    <div class="accessory-rec-info">
+                        <span class="accessory-rec-name">{{ ar.accessory.name|truncatechars:15 }}</span>
+                        <div class="accessory-rec-meta">
+                            <span class="accessory-rec-price">₹{{ ar.accessory.price }}</span>
+                            <span class="btn btn-sm btn-link" style="padding: 0; font-size: 0.75rem;">View</span>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        {% endwith %}
+
+
         <div class="outfit-footer">
             <div class="match-quality">
                 Match Quality:
@@ -158,6 +249,18 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const filterForm = document.querySelector('.filter-form');
+    const userPrompt = document.querySelector('textarea[name="user_prompt"]');
+
+    if (userPrompt && filterForm) {
+        userPrompt.addEventListener('keydown', function(e) {
+            // Submit on Enter, but allow Shift+Enter for new lines
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                filterForm.requestSubmit(); // Triggers the submit event and button state change
+            }
+        });
+    }
+
     if (filterForm) {
         filterForm.addEventListener('submit', function(e) {
             const submitBtn = this.querySelector('button[type="submit"]');

@@ -9,6 +9,11 @@ from accessories.models import Accessory
 from orders.models import Order
 from recommendations.models import OutfitRecommendation
 from wardrobe.models import WardrobeItem
+from .utils import (
+    send_welcome_email, 
+    send_supplier_registration_email, 
+    send_supplier_approval_email
+)
 
 User = get_user_model()
 
@@ -53,6 +58,7 @@ def edit_profile(request):
         user.phone_number = request.POST.get('phone_number', user.phone_number)
         user.address = request.POST.get('address', user.address)
         user.bio = request.POST.get('bio', user.bio)
+        user.gender = request.POST.get('gender', user.gender)
 
         if 'profile_picture' in request.FILES:
             user.profile_picture = request.FILES['profile_picture']
@@ -111,12 +117,15 @@ def user_register(request):
                 'error': 'Username already exists'
             })
 
-        CustomUser.objects.create_user(
+        user = CustomUser.objects.create_user(
             username=username,
             email=email,
             password=password1,
-            role='user'
+            role='user',
+            gender=request.POST.get('gender', 'other')
         )
+
+        send_welcome_email(user)
 
         return redirect('user_login')
 
@@ -150,7 +159,9 @@ def supplier_register(request):
         )
         user.is_active = False  # Wait for admin approval
         user.save()
-
+        
+        send_supplier_registration_email(user)
+        
         messages.success(request, 'Registration successful. Please wait for admin approval.')
         return redirect('user_login')
 
@@ -282,6 +293,9 @@ def admin_approve_supplier(request, pk):
         supplier = get_object_or_404(CustomUser, pk=pk)
         supplier.is_active = True
         supplier.save()
+        
+        send_supplier_approval_email(supplier)
+        
         messages.success(request, f'Supplier {supplier.username} approved successfully.')
     return redirect('admin_pending_suppliers')
 

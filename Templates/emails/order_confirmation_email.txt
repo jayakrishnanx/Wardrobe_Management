@@ -1,0 +1,25 @@
+Hi {{ username }},
+
+Your product ({{ product_name }}) has been successfully ordered and it is expected to arrive on {{ delivery_date }}.
+
+Order Details:
+{% for item in items %}
+- {{ item.name }} x {{ item.quantity }} : ₹{{ item.price }}
+{% endfor %}
+
+Total Amount: ₹{{ total_amount }}
+Expected Delivery Date: {{ delivery_date }}
+
+Shipping Details:
+----------------
+{{ full_name }}
+{{ address }}
+{{ city }}, {{ state }} - {{ pincode }}
+Phone: {{ phone }}
+
+Payment Method: {{ payment_mode }}
+
+You can view your order history here: {{ orders_url }}
+
+Thank you for shopping with Wardrobe Manager!
+Wardrobe Manager Team

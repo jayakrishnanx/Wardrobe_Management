@@ -1,6 +1,7 @@
 from wardrobe.models import WardrobeItem
 from accessories.models import Accessory
 from .models import OutfitRecommendation, AccessoryRecommendation, ColorMatchingRule
+from django.db.models import Q
 
 import os
 import joblib
@@ -190,38 +191,84 @@ def generate_outfit_recommendations(user, occasion_id=None, season_id=None):
         for bottom in bottoms:
             score = calculate_match_score(top, bottom, rules_list)
 
-            OutfitRecommendation.objects.update_or_create(
+            outfit, created = OutfitRecommendation.objects.update_or_create(
                 user=user,
                 top_item=top,
                 bottom_item=bottom,
                 defaults={"match_score": score},
             )
+            
+            # Generate accessory recommendations for this outfit
+            recommend_accessories(outfit, top, bottom)
 
 # ==========================================================
 # 🎒 ACCESSORY RECOMMENDATION (UNCHANGED)
 # ==========================================================
 
 def recommend_accessories(outfit, top, bottom):
+    """
+    Recommends 1-3 accessories that match the outfit's gender and color.
+    """
+    user = outfit.user
+    
+    # 1. Clear existing accessory recommendations for this outfit
+    AccessoryRecommendation.objects.filter(outfit=outfit).delete()
+
+    # 2. Base filter: Active, in stock, and gender-appropriate
+    # Also exclude clothing categories based on name or category
+    clothing_keywords = [
+        'shirt', 'pant', 'jeans', 't-shirt', 'trouser', 'dress', 
+        'top', 'bottom', 'jacket', 'coat', 'sweatshirt', 'hoodie'
+    ]
+    
+    gender_q = Q(gender='other')
+    if user.gender == 'male':
+        gender_q |= Q(gender='male')
+    elif user.gender == 'female':
+        gender_q |= Q(gender='female')
+    else:
+        gender_q |= Q(gender='male') | Q(gender='female')
+
     accessories = Accessory.objects.filter(
-        is_active=True, stock__gt=0
+        gender_q,
+        is_active=True, 
+        stock__gt=0
     )
 
+    # Exclude items that sound like clothing
+    for keyword in clothing_keywords:
+        accessories = accessories.exclude(category__icontains=keyword).exclude(name__icontains=keyword)
+
+    # 3. Match based on color and optionally occasion/season
+    results = []
     for accessory in accessories:
         score = 0.0
 
-        if accessory.color:
-            c = accessory.color.lower()
-            if top.color and c in top.color.lower():
+        # Color matching (0.4 if matches top, 0.4 if matches bottom)
+        if accessory.color and (top.color or bottom.color):
+            a_color = accessory.color.lower()
+            if top.color and a_color in top.color.lower():
                 score += 0.4
-            if bottom.color and c in bottom.color.lower():
+            if bottom.color and a_color in bottom.color.lower():
                 score += 0.4
+        
+        # Style matching (0.2 if matches occasion, 0.2 if matches season)
+        if accessory.occasion_id == top.occasion_id or accessory.occasion_id == bottom.occasion_id:
+            score += 0.1
+        if accessory.season_id == top.season_id or accessory.season_id == bottom.season_id:
+            score += 0.1
 
-        if score >= 0.4:
-            AccessoryRecommendation.objects.create(
-                outfit=outfit,
-                accessory=accessory,
-                score=round(score, 2),
-            )
+        if score >= 0.2: # Minimum threshold to suggest
+            results.append((accessory, score))
+
+    # 4. Save top 3 recommendations
+    results.sort(key=lambda x: x[1], reverse=True)
+    for accessory, score in results[:3]:
+        AccessoryRecommendation.objects.create(
+            outfit=outfit,
+            accessory=accessory,
+            score=round(score, 2),
+        )
 
 # ==========================================================
 # 🤖 AI CHATBOT INTEGRATION (GROQ / GEMINI)
@@ -287,6 +334,23 @@ def generate_ai_chat_response(prompt, user):
     tops = WardrobeItem.objects.filter(user=user, category__name__iexact='top', clean_status=True)
     bottoms = WardrobeItem.objects.filter(user=user, category__name__iexact='bottom', clean_status=True)
     
+    # 2. Gather Gender-Appropriate Accessories from Suppliers (Exclude clothing)
+    clothing_keywords = [
+        'shirt', 'pant', 'jeans', 't-shirt', 'trouser', 'dress', 
+        'top', 'bottom', 'jacket', 'coat', 'sweatshirt', 'hoodie'
+    ]
+
+    accessories = Accessory.objects.filter(
+        Q(gender=user.gender) | Q(gender='other'),
+        is_active=True, 
+        stock__gt=0
+    )
+
+    for keyword in clothing_keywords:
+        accessories = accessories.exclude(category__icontains=keyword).exclude(name__icontains=keyword)
+
+    accessories = accessories[:10] # Suggest top 10 matching accessories
+    
     inventory_str = 'Tops available:\n'
     for t in tops:
         inventory_str += f'- ID: {t.id}, Type: {t.item_type}, Color: {t.color}\n'
@@ -295,11 +359,17 @@ def generate_ai_chat_response(prompt, user):
     for b in bottoms:
         inventory_str += f'- ID: {b.id}, Type: {b.item_type}, Color: {b.color}\n'
         
+    accessory_str = '\nAvailable Accessories from Suppliers:\n'
+    for a in accessories:
+        accessory_str += f'- {a.name} ({a.category}), Price: ₹{a.price}, Color: {a.color}, Supplier: {a.supplier.username}\n'
+
     system_instruction = f"""You are a helpful fashion stylist AI. 
-The user is asking for an outfit recommendation based on their prompt: '{prompt}'
+The user ({user.username}, Gender: {user.get_gender_display()}) is asking for an outfit recommendation based on their prompt: '{prompt}'
 
 Here is their current clean wardrobe inventory:
 {inventory_str}
+
+{accessory_str}
 
 Please respond like a friendly chatbot. 
 CRITICAL: You MUST start your 'message' with "Hi {user.username}, ".
@@ -307,10 +377,12 @@ CRITICAL: You MUST start your 'message' with "Hi {user.username}, ".
 Suggest 1 or 2 complete outfits using exclusively the items listed above. 
 For EACH outfit, explicitly explain WHY you are recommending it.
 
+In your response message, you MUST also suggest 1 or 2 matching accessories from the "Available Accessories from Suppliers" list above that complement the suggested outfits. Mention the supplier name and price.
+
 IMPORTANT: You MUST respond purely in valid JSON format with NO markdown wrapping. 
 Structure:
 {{
-    "message": "Hi {user.username}, [Friendly conversation and reasoning...]",
+    "message": "Hi {user.username}, [Friendly conversation, reasoning, and accessories recommendations...]",
     "outfits": [
         {{"top_id": X, "bottom_id": Y}}
     ]

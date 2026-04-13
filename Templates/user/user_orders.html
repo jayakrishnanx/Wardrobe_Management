@@ -76,6 +76,10 @@
                        Cancel Order
                     </a>
                 </div>
+                {% elif order.status == 'shipped' %}
+                <div class="mt-4 text-end">
+                    <span class="text-danger small fw-bold">⚠️ Cannot cancel as it's already shipped.</span>
+                </div>
                 {% endif %}
             </div>
         </div>

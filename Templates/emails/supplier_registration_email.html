@@ -1,0 +1,22 @@
+{% extends "emails/welcome_email.html" %}
+
+{% block email_content %}
+<h2 style="color: #233D4D; margin-bottom: 20px;">Supplier Registration Received!</h2>
+<p style="color: #4A5D68; font-size: 16px; line-height: 26px;">
+    Hi <strong>{{ username }}</strong>,
+</p>
+<p style="color: #4A5D68; font-size: 16px; line-height: 26px;">
+    Thank you for registering as a supplier with <strong>Wardrobe Manager</strong>. We are excited to have you onboard!
+</p>
+<div style="background-color: #f8f9fa; border-left: 4px solid #FE7F2D; padding: 20px; margin: 30px 0;">
+    <p style="margin: 0; color: #233D4D; font-weight: 500;">
+        <strong>Next Steps:</strong> Your account is currently pending review by our administration team. This usually takes 24-48 hours.
+    </p>
+</div>
+<p style="color: #4A5D68; font-size: 16px; line-height: 26px;">
+    We will notify you via email as soon as your account has been approved. Once approved, you will be able to list your accessories in our marketplace.
+</p>
+<p style="color: #4A5D68; font-size: 16px; line-height: 26px;">
+    If you have any questions in the meantime, please feel free to reach out to our support team.
+</p>
+{% endblock %}
