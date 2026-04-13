@@ -14,9 +14,28 @@ if apps_path not in sys.path:
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')
 
+app = None
 try:
     from django.core.wsgi import get_wsgi_application
     app = get_wsgi_application()
-except Exception as e:
-    print(f"Error loading WSGI application: {e}")
-    raise e
+except Exception:
+    import traceback
+    error_msg = traceback.format_exc()
+    
+    def error_app(environ, start_response):
+        status = '500 Internal Server Error'
+        headers = [('Content-type', 'text/html')]
+        start_response(status, headers)
+        html = f"""
+        <html>
+        <head><title>Vercel Rescue: Startup Error</title></head>
+        <body style="font-family: sans-serif; padding: 20px; line-height: 1.5;">
+            <h1 style="color: #e11d48;">⚠️ Django Startup Failed</h1>
+            <p>This page is a debug wrapper. The error below is why your site is showing a 500 error:</p>
+            <pre style="background: #f4f4f5; padding: 15px; border-radius: 8px; overflow-x: auto; border: 1px solid #e4e4e7;">{error_msg}</pre>
+        </body>
+        </html>
+        """
+        return [html.encode('utf-8')]
+    
+    app = error_app
