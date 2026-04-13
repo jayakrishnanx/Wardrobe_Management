@@ -18,8 +18,8 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'jk')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '.pythonanywhere.com localhost 127.0.0.1 .railway.app').split()
-CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'https://*.railway.app').split()
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '.pythonanywhere.com localhost 127.0.0.1 .railway.app .onrender.com').split()
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'https://*.railway.app https://*.onrender.com').split()
 
 
 # Application definition
