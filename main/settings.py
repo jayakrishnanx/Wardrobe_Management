@@ -20,6 +20,11 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.2.102', '.pythonanywhere.com', '.onrender.com']
 
+# CSRF & Security for Production
+CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com']
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = os.environ.get('DJANGO_DEBUG', 'True') == 'False'
+
 
 
 # Application definition
@@ -79,7 +84,8 @@ WSGI_APPLICATION = 'main.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(
         default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
-        conn_max_age=600
+        conn_max_age=600,
+        ssl_require=True if os.environ.get('DATABASE_URL') and 'render.com' in os.environ.get('DATABASE_URL') else False
     )
 }
 
