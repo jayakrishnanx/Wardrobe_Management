@@ -32,5 +32,4 @@ urlpatterns = [
     path('admin/suppliers/reject/<int:pk>/', admin_reject_supplier, name='admin_reject_supplier'),
     path('admin/feedback/', admin_feedback_list, name='admin_feedback_list'),
     path('admin/feedback/analyze/<int:pk>/', admin_analyze_feedback, name='admin_analyze_feedback'),
-    path('run-migrations/', run_migrations, name='run_migrations'),
 ]

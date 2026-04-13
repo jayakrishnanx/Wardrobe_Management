@@ -19,7 +19,5 @@ pytz==2025.2
 sqlparse==0.5.3
 asgiref==3.10.0
 
-# Production
-whitenoise==6.8.2
-dj-database-url==2.3.0
-psycopg2-binary==2.9.10
+# Cleanup
+# Removed production-only libraries like dj-database-url and psycopg2-binary

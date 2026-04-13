@@ -13,37 +13,25 @@ import joblib
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # ==========================================================
-# 🤖 LAZY LOAD ML FILES
+# 🤖 LOAD ML FILES (REQUIRED FOR ML MODE)
 # ==========================================================
 
-_ml_model = None
-_color_encoder = None
-_label_encoder = None
-_ml_loaded = False
+MODEL_PATH = os.path.join(BASE_DIR, "fashion_model.pkl")
+COLOR_ENCODER_PATH = os.path.join(BASE_DIR, "color_encoder.pkl")
+LABEL_ENCODER_PATH = os.path.join(BASE_DIR, "label_encoder.pkl")
 
-def get_ml_resources():
-    global _ml_model, _color_encoder, _label_encoder, _ml_loaded
-    
-    if _ml_loaded:
-        return _ml_model, _color_encoder, _label_encoder
+model = None
+color_encoder = None
+label_encoder = None
 
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    model_path = os.path.join(BASE_DIR, "fashion_model.pkl")
-    color_path = os.path.join(BASE_DIR, "color_encoder.pkl")
-    label_path = os.path.join(BASE_DIR, "label_encoder.pkl")
-
-    if os.path.exists(model_path) and os.path.exists(color_path) and os.path.exists(label_path):
-        try:
-            import joblib
-            _ml_model = joblib.load(model_path)
-            _color_encoder = joblib.load(color_path)
-            _label_encoder = joblib.load(label_path)
-            _ml_loaded = True
-        except Exception:
-            _ml_loaded = True # Prevent repeated failed attempts
-            pass
-
-    return _ml_model, _color_encoder, _label_encoder
+if (
+    os.path.exists(MODEL_PATH)
+    and os.path.exists(COLOR_ENCODER_PATH)
+    and os.path.exists(LABEL_ENCODER_PATH)
+):
+    model = joblib.load(MODEL_PATH)
+    color_encoder = joblib.load(COLOR_ENCODER_PATH)
+    label_encoder = joblib.load(LABEL_ENCODER_PATH)
 
 # ==========================================================
 # 🔢 LABEL → SCORE
@@ -131,8 +119,6 @@ def calculate_match_score(top, bottom, rules_list):
                 return score
 
     # 3. FALLBACK TO ML MODEL
-    model, color_encoder, label_encoder = get_ml_resources()
-    
     if not (model and color_encoder and label_encoder):
         return 0.40  # fallback if ML missing
 

@@ -16,21 +16,6 @@
     <link rel="icon" type="image/png" href="{% static 'assets/img/favicon.png' %}">
     <link rel="stylesheet" href="{% static 'css/main.css' %}?v=6">
 
-    <!-- PWA Settings -->
-    <link rel="manifest" href="{% url 'manifest' %}">
-    <meta name="theme-color" content="#8b5cf6">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('{% url "service_worker" %}')
-                    .then(reg => console.log('Service Worker registered'))
-                    .catch(err => console.log('Service Worker registration failed', err));
-            });
-        }
-    </script>
 </head>
 
 <body class="auth-body">

@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate, login, logout, get_user_model
+﻿from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -325,14 +325,4 @@ def admin_analyze_feedback(request, pk):
     
     if not success:
         messages.error(request, message)
-        
-
-def run_migrations(request):
-    from django.core import management
-    from django.http import HttpResponse
-    
-    try:
-        management.call_command('migrate', no_input=True)
-        return HttpResponse("Migrations successful!")
-    except Exception as e:
-        return HttpResponse(f"Migrations failed: {str(e)}", status=500)
+    return redirect('admin_feedback_list')

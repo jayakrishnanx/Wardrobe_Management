@@ -1,5 +1,4 @@
 import os
-import dj_database_url
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -18,12 +17,11 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'jk')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.2.102', '.pythonanywhere.com', '.onrender.com', '.koyeb.app', '.vercel.app', '*']
+ALLOWED_HOSTS = ['*']
 
-# CSRF & Security for Production
-CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com', 'https://*.pythonanywhere.com', 'https://*.koyeb.app', 'https://*.vercel.app']
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT = os.environ.get('DJANGO_DEBUG', 'True') == 'False'
+# Security settings for local development
+SECURE_SSL_REDIRECT = False
+SECURE_PROXY_SSL_HEADER = None
 
 
 
@@ -82,15 +80,11 @@ WSGI_APPLICATION = 'main.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(
-        env='POSTGRES_URL' if os.environ.get('POSTGRES_URL') else 'DATABASE_URL',
-        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
-        conn_max_age=600,
-        ssl_require=True if (os.environ.get('POSTGRES_URL') or os.environ.get('DATABASE_URL')) else False
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
-if os.environ.get('POSTGRES_URL') == '':
-    DATABASES['default'] = dj_database_url.parse(f'sqlite:///{BASE_DIR / "db.sqlite3"}')
 
 
 # Password validation
