@@ -1,0 +1,23 @@
+{% load static %}
+{
+  "name": "Wardrobe Manager",
+  "short_name": "WardrobeAI",
+  "description": "AI-powered wardrobe organization and outfit planning.",
+  "start_url": "{% url 'user_login' %}",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#8b5cf6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "{% static 'assets/img/pwa/icon-192.png' %}",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "{% static 'assets/img/pwa/icon-512.png' %}",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}
