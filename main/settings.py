@@ -1,6 +1,7 @@
-import os
 from pathlib import Path
+import os
 from dotenv import load_dotenv
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -15,14 +16,10 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'jk')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['*']
-
-# Security settings for local development
-SECURE_SSL_REDIRECT = False
-SECURE_PROXY_SSL_HEADER = None
-
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '.pythonanywhere.com localhost 127.0.0.1 .railway.app').split()
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'https://*.railway.app').split()
 
 
 # Application definition
@@ -86,6 +83,9 @@ DATABASES = {
     }
 }
 
+if os.environ.get('DATABASE_URL'):
+    DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -126,8 +126,6 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
-
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'

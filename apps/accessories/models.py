@@ -50,6 +50,7 @@ class Accessory(models.Model):
  
         if self.image and not self.color:
             try:
+                # Extract the color
                 self.color = extract_dominant_color(self.image.path)
                 super().save(update_fields=['color'])
             except Exception as e:

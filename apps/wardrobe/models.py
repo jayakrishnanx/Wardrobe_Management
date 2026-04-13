@@ -54,8 +54,9 @@ class WardrobeItem(models.Model):
         is_new = self.pk is None
         super().save(*args, **kwargs)
 
-        if self.image and (not self.color or is_new):
+        if self.image and is_new:
             try:
+                # Extract the color
                 self.color = extract_dominant_color(self.image.path)
                 super().save(update_fields=['color'])
             except Exception as e:

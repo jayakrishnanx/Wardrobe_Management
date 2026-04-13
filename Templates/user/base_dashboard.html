@@ -13,9 +13,17 @@
     <!-- Main CSS -->
     {% load static %}
     <link rel="icon" type="image/png" href="{% static 'assets/img/favicon.png' %}">
-    <link rel="stylesheet" href="{% static 'css/main.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}?v=11">
+    
+    <!-- PWA Meta Tags & Manifest -->
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <meta name="theme-color" content="#215E61">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Wardrobe">
+    <link rel="apple-touch-icon" href="{% static 'assets/img/pwa/icon-192.png' %}">
+    
     {% block extra_css %}{% endblock %}
-
 </head>
 
 <body>
@@ -132,6 +140,15 @@
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
             document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+
+        // Service Worker Registration for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('{% static "js/serviceworker.js" %}')
+                    .then(reg => console.log('Service Worker registered', reg))
+                    .catch(err => console.log('Service Worker registration failed', err));
+            });
         }
     </script>
 

@@ -202,8 +202,17 @@ def generate_outfit_recommendations(user, occasion_id=None, season_id=None):
             recommend_accessories(outfit, top, bottom)
 
 # ==========================================================
-# 🎒 ACCESSORY RECOMMENDATION (UNCHANGED)
+# 🎒 ACCESSORY RECOMMENDATION
 # ==========================================================
+
+def GET_CLOTHING_KEYWORDS():
+    return [
+        'shirt', 'pant', 'jeans', 'jhens', 't-shirt', 'trouser', 'dress', 
+        'jacket', 'coat', 'sweatshirt', 'hoodie',
+        'kurta', 'lehenga', 'saree', 'suit', 'blazer', 'vest', 
+        'skirt', 'leggings', 'innerwear', 'gown', 'cardigan',
+        'sweater', 'shorts', 'tracksuit', 'blouse', 'shuit', 'jeanc'
+    ]
 
 def recommend_accessories(outfit, top, bottom):
     """
@@ -214,20 +223,17 @@ def recommend_accessories(outfit, top, bottom):
     # 1. Clear existing accessory recommendations for this outfit
     AccessoryRecommendation.objects.filter(outfit=outfit).delete()
 
-    # 2. Base filter: Active, in stock, and gender-appropriate
-    # Also exclude clothing categories based on name or category
-    clothing_keywords = [
-        'shirt', 'pant', 'jeans', 't-shirt', 'trouser', 'dress', 
-        'top', 'bottom', 'jacket', 'coat', 'sweatshirt', 'hoodie'
-    ]
+    # 2. Base filter: Active, in stock, and STRICT gender-appropriate
+    clothing_keywords = GET_CLOTHING_KEYWORDS()
     
-    gender_q = Q(gender='other')
+    # Strict matching as requested: "if user is male only show male accessories"
     if user.gender == 'male':
-        gender_q |= Q(gender='male')
+        gender_q = Q(gender='male')
     elif user.gender == 'female':
-        gender_q |= Q(gender='female')
+        gender_q = Q(gender='female')
     else:
-        gender_q |= Q(gender='male') | Q(gender='female')
+        # Default fallback for other/unspecified
+        gender_q = Q(gender='other') | Q(gender=user.gender)
 
     accessories = Accessory.objects.filter(
         gender_q,
@@ -236,8 +242,14 @@ def recommend_accessories(outfit, top, bottom):
     )
 
     # Exclude items that sound like clothing
+    # We check category and name
     for keyword in clothing_keywords:
         accessories = accessories.exclude(category__icontains=keyword).exclude(name__icontains=keyword)
+    
+    # Special check: If category is strictly 'Top' or 'Bottom', and it's NOT something like 'Cap' or 'Belt'
+    # Actually, the keywords already cover most. We can add a check for 'Top'/'Bottom' as categories specifically
+    accessories = accessories.exclude(category__iexact='Top').exclude(category__iexact='Bottom')
+
 
     # 3. Match based on color and optionally occasion/season
     results = []
@@ -291,7 +303,7 @@ def get_ai_response(system_instruction, use_json=True):
     if gemini_key and gemini_key != 'YOUR_API_KEY_HERE':
         try:
             genai.configure(api_key=gemini_key)
-            model = genai.GenerativeModel('gemini-flash-latest')
+            model = genai.GenerativeModel('gemini-1.5-flash')
             response = model.generate_content(system_instruction)
             text_resp = response.text.strip()
             # Clean markdown
@@ -300,11 +312,7 @@ def get_ai_response(system_instruction, use_json=True):
             return json.loads(text_resp.strip())
         except Exception as e:
             error_msg = str(e)
-            # If not a quota error, we might still want to try Groq
-            # If it IS a quota error, we definitely try Groq
             if "429" not in error_msg and "quota" not in error_msg.lower():
-                # Non-quota error but still failed, maybe try Groq anyway?
-                # User specifically asked "if gemini overuse switch to groq"
                 pass 
 
     # --- 2. TRY GROQ (FAILOVER) ---
@@ -325,7 +333,7 @@ def get_ai_response(system_instruction, use_json=True):
             error_msg = str(e)
             if "429" in error_msg or "quota" in error_msg.lower():
                 return "quota_limited"
-            raise e # Let the caller handle other Groq errors
+            raise e
 
     return "no_provider"
 
@@ -334,22 +342,39 @@ def generate_ai_chat_response(prompt, user):
     tops = WardrobeItem.objects.filter(user=user, category__name__iexact='top', clean_status=True)
     bottoms = WardrobeItem.objects.filter(user=user, category__name__iexact='bottom', clean_status=True)
     
-    # 2. Gather Gender-Appropriate Accessories from Suppliers (Exclude clothing)
-    clothing_keywords = [
-        'shirt', 'pant', 'jeans', 't-shirt', 'trouser', 'dress', 
-        'top', 'bottom', 'jacket', 'coat', 'sweatshirt', 'hoodie'
-    ]
+    # Strict matching as requested: "if user is male only show male accessories"
+    if user.gender == 'male':
+        gender_q = Q(gender='male')
+    elif user.gender == 'female':
+        gender_q = Q(gender='female')
+    else:
+        gender_q = Q(gender=user.gender) | Q(gender='other')
 
-    accessories = Accessory.objects.filter(
-        Q(gender=user.gender) | Q(gender='other'),
+    accessories_query = Accessory.objects.filter(
+        gender_q,
         is_active=True, 
         stock__gt=0
     )
 
+    clothing_keywords = GET_CLOTHING_KEYWORDS()
     for keyword in clothing_keywords:
-        accessories = accessories.exclude(category__icontains=keyword).exclude(name__icontains=keyword)
+        accessories_query = accessories_query.exclude(category__icontains=keyword).exclude(name__icontains=keyword)
 
-    accessories = accessories[:10] # Suggest top 10 matching accessories
+    # 3. Intelligent selection for AI: Sort by color match with user inventory
+    user_colors = set(list(tops.values_list('color', flat=True)) + list(bottoms.values_list('color', flat=True)))
+    user_colors = {c.lower() for c in user_colors if c}
+    
+    accessories_list = list(accessories_query)
+    scored_accessories = []
+    for a in accessories_list:
+        score = 0
+        if a.color and a.color.lower() in user_colors:
+            score += 5
+        scored_accessories.append((a, score))
+    
+    # Sort and pick top 15 to give AI more variety but relevant ones
+    scored_accessories.sort(key=lambda x: x[1], reverse=True)
+    accessories = [x[0] for x in scored_accessories[:15]]
     
     inventory_str = 'Tops available:\n'
     for t in tops:

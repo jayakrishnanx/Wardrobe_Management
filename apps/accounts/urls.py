@@ -14,6 +14,7 @@ urlpatterns = [
     path('user/home/', user_home, name='user_home'),
     path('profile/', user_profile, name='user_profile'),
     path('profile/edit/', edit_profile, name='edit_profile'),
+    path('offline/', offline_view, name='offline'),
 
     # CUSTOM ADMIN
     path('admin/dashboard/', admin_dashboard, name='admin_dashboard'),

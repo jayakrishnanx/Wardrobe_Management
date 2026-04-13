@@ -58,6 +58,29 @@
 .accessory-placeholder {
     font-size: 2rem;
 }
+
+@media (max-width: 600px) {
+    .accessory-rec-card {
+        flex: 0 0 110px;
+    }
+    .accessory-rec-img {
+        height: 90px;
+    }
+    .accessory-rec-info {
+        padding: 6px;
+    }
+    .accessory-rec-name {
+        font-size: 0.7rem;
+    }
+    .accessory-rec-price {
+        font-size: 0.7rem;
+    }
+    .accessory-rec-img img {
+        object-fit: contain !important;
+        padding: 4px;
+        background: #fdfdfd;
+    }
+}
 </style>
 {% endblock %}
 

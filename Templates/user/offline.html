@@ -1,0 +1,12 @@
+{% extends 'user/base_dashboard.html' %}
+
+{% block title %}Offline - Wardrobe Manager{% endblock %}
+
+{% block content %}
+<div class="text-center p-5">
+    <div class="fs-1 mb-3">📶</div>
+    <h1>You're currently offline</h1>
+    <p class="text-muted">It looks like you've lost your connection. Some features might be unavailable until you're back online.</p>
+    <a href="{% url 'user_home' %}" class="btn btn-primary mt-4">Try Again</a>
+</div>
+{% endblock %}

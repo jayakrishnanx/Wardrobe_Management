@@ -1,4 +1,4 @@
-﻿from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -68,6 +68,11 @@ def edit_profile(request):
         return redirect('user_profile')
 
     return render(request, 'user/edit_profile.html', {'user': request.user})
+
+
+@login_required
+def offline_view(request):
+    return render(request, 'user/offline.html')
 
 
 # ================= AUTH ================= #
@@ -325,4 +330,5 @@ def admin_analyze_feedback(request, pk):
     
     if not success:
         messages.error(request, message)
+        
     return redirect('admin_feedback_list')

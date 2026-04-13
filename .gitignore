@@ -8,3 +8,15 @@ media/
 .idea/
 .vscode/
 *.log
+node_modules/
+staticfiles/
+.DS_Store
+*.swp
+coverage/
+dist/
+build/
+.next/
+.capacitor/
+android/
+ios/
+www/

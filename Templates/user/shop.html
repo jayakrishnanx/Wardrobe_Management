@@ -23,8 +23,57 @@
     </form>
 </div>
 
+<!-- All Products First -->
+<h3 class="fade-in section-divider delay-1">All Products</h3>
+<div class="product-grid fade-in delay-2">
+    {% for a in accessories %}
+    <div class="product-card">
+        <div class="product-image-container">
+            {% if a.image %}
+                <img src="{{ a.image.url }}" class="product-image">
+            {% else %}
+                <div class="text-muted fs-1">🖼️</div>
+            {% endif %}
+        </div>
+        
+        <div class="product-card-body">
+            <div class="product-meta">
+                <span class="product-category">{{ a.category }}</span>
+                <h4 class="product-title">{{ a.name }}</h4>
+                <div class="product-rating">★★★★☆ <span class="rating-count">(12)</span></div>
+            </div>
+            
+            <div class="product-footer">
+                <div class="price-stock-row">
+                    <span class="price-tag">₹{{ a.price }}</span>
+                    <span class="stock-badge {% if a.stock > 0 %}stock-in{% else %}stock-out{% endif %}">
+                        {% if a.stock > 0 %}In Stock{% else %}Out of Stock{% endif %}
+                    </span>
+                </div>
+                
+                {% if a.stock > 0 %}
+                <form method="post" action="{% url 'checkout' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="accessory_id" value="{{ a.id }}">
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit" class="buy-btn">Buy Now</button>
+                </form>
+                {% else %}
+                <button disabled class="buy-btn">Unavailable</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-shop">
+        <p class="empty-shop-text">No products found matching your search.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Recommended for You Second -->
 {% if recommended_accessories %}
-<div class="recommendations-section fade-in delay-1">
+<div class="recommendations-section fade-in delay-3" style="margin-top: 3rem;">
     <div class="rec-header">
         <span class="rec-icon">✨</span>
         <div>
@@ -73,50 +122,4 @@
 </div>
 {% endif %}
 
-<h3 class="fade-in section-divider delay-2">All Products</h3>
-<div class="product-grid fade-in delay-3">
-    {% for a in accessories %}
-    <div class="product-card">
-        <div class="product-image-container">
-            {% if a.image %}
-                <img src="{{ a.image.url }}" class="product-image">
-            {% else %}
-                <div class="text-muted fs-1">🖼️</div>
-            {% endif %}
-        </div>
-        
-        <div class="product-card-body">
-            <div class="product-meta">
-                <span class="product-category">{{ a.category }}</span>
-                <h4 class="product-title">{{ a.name }}</h4>
-                <div class="product-rating">★★★★☆ <span class="rating-count">(12)</span></div>
-            </div>
-            
-            <div class="product-footer">
-                <div class="price-stock-row">
-                    <span class="price-tag">₹{{ a.price }}</span>
-                    <span class="stock-badge {% if a.stock > 0 %}stock-in{% else %}stock-out{% endif %}">
-                        {% if a.stock > 0 %}In Stock{% else %}Out of Stock{% endif %}
-                    </span>
-                </div>
-                
-                {% if a.stock > 0 %}
-                <form method="post" action="{% url 'checkout' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="accessory_id" value="{{ a.id }}">
-                    <input type="hidden" name="quantity" value="1">
-                    <button type="submit" class="buy-btn">Buy Now</button>
-                </form>
-                {% else %}
-                <button disabled class="buy-btn">Unavailable</button>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    {% empty %}
-    <div class="empty-shop">
-        <p class="empty-shop-text">No products found matching your search.</p>
-    </div>
-    {% endfor %}
-</div>
 {% endblock %}

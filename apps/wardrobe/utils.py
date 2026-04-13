@@ -6,12 +6,15 @@ import colorsys
 COLOR_NAMES = {
     'black': lambda h, s, v: v < 0.2,
     'white': lambda h, s, v: v > 0.85 and s < 0.15,
-    'gray':  lambda h, s, v: s < 0.2,
-    'red':   lambda h, s, v: h < 0.05 or h > 0.95,
-    'yellow':lambda h, s, v: 0.10 < h < 0.18,
-    'green': lambda h, s, v: 0.18 < h < 0.45,
-    'blue':  lambda h, s, v: 0.45 < h < 0.75,
-    'brown': lambda h, s, v: 0.05 < h < 0.15 and v < 0.6,
+    'gray':  lambda h, s, v: s < 0.12,
+    'red':   lambda h, s, v: (h < 0.03 or h > 0.96) and s > 0.4,
+    'pink':  lambda h, s, v: (h > 0.85 or h < 0.05) and s < 0.4 and v > 0.6,
+    'orange':lambda h, s, v: 0.03 <= h < 0.1,
+    'yellow':lambda h, s, v: 0.10 <= h < 0.18,
+    'green': lambda h, s, v: 0.18 <= h < 0.45,
+    'blue':  lambda h, s, v: 0.45 <= h < 0.72,
+    'purple':lambda h, s, v: 0.72 <= h < 0.85,
+    'brown': lambda h, s, v: 0.05 <= h < 0.15 and v < 0.6,
 }
 
 def rgb_to_hsv(rgb):
@@ -31,7 +34,7 @@ def extract_dominant_color(image_path):
 
     pixels = np.array(img)
 
-    # 🔥 Ignore background edges (crop center)
+    # 🔥 Ignore background edges (crop center to focus on item)
     h, w, _ = pixels.shape
     pixels = pixels[h//6:5*h//6, w//6:5*w//6]
     pixels = pixels.reshape(-1, 3)

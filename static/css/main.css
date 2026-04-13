@@ -1,3 +1,9 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 :root {
     /* Color Palette - Tropical Teal & Orange (Color Hunt f5fbe6 215e61 233d4d fe7f2d) */
     --primary-color: #FE7F2D;
@@ -45,6 +51,10 @@
 
 html {
     font-size: 90%;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+    height: 100%;
 }
 
 body {
@@ -53,6 +63,10 @@ body {
     color: var(--text-main);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+    min-height: 100%;
 }
 
 /* Utilities */
@@ -909,6 +923,12 @@ a:hover {
     text-align: center;
 }
 
+@media (max-width: 600px) {
+    .outfit-item-card {
+        padding: 8px;
+    }
+}
+
 .outfit-item-image {
     width: 100%;
     max-width: 180px;
@@ -916,6 +936,16 @@ a:hover {
     object-fit: cover;
     border-radius: var(--radius-sm);
     margin-bottom: var(--space-md);
+}
+
+@media (max-width: 600px) {
+    .outfit-item-image {
+        height: 120px;
+        margin-bottom: 4px;
+        object-fit: contain !important;
+        background: #fdfdfd;
+        padding: 2px;
+    }
 }
 
 .outfit-item-placeholder {
@@ -938,6 +968,15 @@ a:hover {
     align-items: center;
     flex-wrap: wrap;
     gap: var(--space-md);
+}
+
+@media (max-width: 600px) {
+    .outfit-footer {
+        padding: 10px;
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
 }
 
 .match-quality {
@@ -1122,7 +1161,8 @@ a:hover {
     position: fixed;
     top: 0;
     left: 0;
-    height: 100vh;
+    bottom: 0; /* Ensures it hits the bottom */
+    height: 100%; /* Height fallback */
     overflow-y: auto;
     z-index: 1000;
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.02);
@@ -1251,7 +1291,7 @@ a:hover {
     .main-content {
         margin-left: 0;
         width: 100%;
-        padding: var(--space-lg);
+        padding: var(--space-md); /* Reduced from 3rem to 1.25rem */
         padding-top: 5rem;
     }
 
@@ -1275,6 +1315,59 @@ a:hover {
 
     .sidebar-overlay.active {
         display: block;
+    }
+}
+
+/* Mobile Smoothing & Stacking (< 600px) */
+@media (max-width: 600px) {
+    :root {
+        --space-3xl: 2rem;
+        --space-xl: 1.5rem;
+    }
+
+    html {
+        font-size: 85%;
+    }
+
+    .main-content {
+        padding: var(--space-ms) var(--space-sm);
+        padding-top: 4.5rem;
+    }
+
+    .dashboard-grid, .items-grid, .form-grid, .profile-detail-grid {
+        grid-template-columns: 1fr !important;
+        gap: var(--space-md);
+    }
+
+    .dashboard-card {
+        height: 160px;
+    }
+
+    .outfit-footer {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+
+    .flex-gap-md {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn {
+        width: 100%;
+    }
+
+    .welcome-banner {
+        padding: var(--space-lg);
+    }
+
+    .welcome-banner h2 {
+        font-size: 1.5rem;
+    }
+
+    .auth-main-title {
+        font-size: 2.5rem !important;
     }
 }
 
@@ -1561,6 +1654,14 @@ a:hover {
     gap: var(--space-lg);
 }
 
+@media (max-width: 600px) {
+    .items-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        padding: 4px;
+    }
+}
+
 .item-card {
     background: var(--bg-card);
     border-radius: var(--radius-md);
@@ -1601,6 +1702,36 @@ a:hover {
 .item-details {
     padding: var(--space-lg);
     flex-grow: 1;
+}
+
+@media (max-width: 600px) {
+    .item-image-container {
+        height: 140px;
+        background: #fdfdfd; 
+    }
+    .item-image {
+        object-fit: contain !important;
+        padding: 4px;
+    }
+    .item-details {
+        padding: 8px;
+    }
+    .item-title {
+        font-size: 0.9rem;
+    }
+    .item-subtitle {
+        font-size: 0.75rem;
+    }
+    .wear-count-box {
+        padding: 4px 8px;
+    }
+    .wear-value {
+        font-size: 0.9rem;
+    }
+    .item-actions {
+        gap: 6px;
+        margin-top: 8px;
+    }
 }
 
 .item-header {
@@ -2173,11 +2304,15 @@ a:hover {
     }
 
     .auth-card {
-        padding: var(--space-xl);
+        padding: var(--space-lg);
+    }
+
+    .auth-card-inner {
+        max-width: 100%;
     }
 
     .auth-main-title {
-        font-size: 3rem;
+        font-size: 2.5rem;
     }
 }
 
@@ -2620,6 +2755,89 @@ a:hover {
     gap: var(--space-lg);
 }
 
+@media (max-width: 600px) {
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px; /* High-density spacing like Amazon */
+        padding: 4px;
+    }
+    
+    .product-card {
+        border-radius: var(--radius-sm); /* Sharper corners for a cleaner look */
+    }
+
+    .product-image-container {
+        height: 130px; /* Much smaller images */
+        background: #fdfdfd;
+    }
+
+    .product-image {
+        object-fit: contain !important;
+        padding: 4px;
+    }
+
+    .product-card-body {
+        padding: 8px; /* Tighter padding */
+    }
+
+    .product-meta {
+        margin-bottom: 4px;
+    }
+
+    .product-category {
+        font-size: 0.65rem; /* Tiny category label */
+    }
+
+    .product-title {
+        font-size: 0.75rem;
+        height: 2.4em;
+        margin: 2px 0;
+        line-height: 1.2;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .product-rating {
+        font-size: 0.65rem;
+        margin-bottom: 4px;
+    }
+
+    .price-tag {
+        font-size: 0.95rem;
+        color: var(--primary-color);
+    }
+
+    .price-stock-row {
+        margin-bottom: 6px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1px;
+    }
+
+    .stock-badge {
+        font-size: 0.6rem;
+        padding: 1px 4px;
+    }
+
+    .buy-btn {
+        padding: 6px;
+        font-size: 0.8rem;
+        border-radius: 4px;
+    }
+
+    .shop-search-container {
+        padding: 12px;
+        border-radius: 0; /* Full width look on mobile */
+    }
+
+    .shop-title {
+        font-size: 1.2rem;
+        margin-bottom: 8px;
+    }
+}
+
 .product-card-body {
     padding: var(--space-md);
     flex-grow: 1;
@@ -2699,6 +2917,18 @@ a:hover {
     margin-bottom: var(--space-xl);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     backdrop-filter: blur(10px);
+}
+
+@media (max-width: 600px) {
+    .ai-chat-bubble {
+        padding: 12px;
+        gap: 8px;
+    }
+    .chat-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 1.5rem;
+    }
 }
 
 [data-theme="dark"] .ai-chat-bubble {

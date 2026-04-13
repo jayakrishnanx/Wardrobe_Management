@@ -8,8 +8,7 @@
 
 <div class="stats-grid" style="margin-bottom: 2rem;">
     {% if pending_suppliers_count > 0 %}
-    <div class="stat-card alert-card" onclick="location.href='{% url 'admin_pending_suppliers' %}';"
-        style="background:#fff3cd; cursor:pointer;">
+    <div class="stat-card alert-card" onclick="window.location.href='{% url 'admin_pending_suppliers' %}'" style="background:#fff3cd; cursor:pointer;">
         <div class="stat-icon" style="background:#ffecb5; color:#856404;">⏳</div>
         <div class="stat-info">
             <h3>{{ pending_suppliers_count }}</h3>
@@ -51,25 +50,5 @@
     </div>
 </div>
 
-<div class="card fade-in delay-2">
-    <h3 class="section-title">Quick Management</h3>
-    <div class="form-grid">
-        <a href="/admin/accounts/customuser/" class="btn btn-outline dashboard-action-btn">
-            <span class="dashboard-action-icon">👥</span>
-            Manage Users
-        </a>
-        <a href="/admin/accessories/accessory/" class="btn btn-outline dashboard-action-btn">
-            <span class="dashboard-action-icon">🧣</span>
-            Manage Accessories
-        </a>
-        <a href="/admin/orders/order/" class="btn btn-outline dashboard-action-btn">
-            <span class="dashboard-action-icon">📦</span>
-            View Orders
-        </a>
-        <a href="/admin/recommendations/outfitrecommendation/" class="btn btn-outline dashboard-action-btn">
-            <span class="dashboard-action-icon">✨</span>
-            View Recommendations
-        </a>
-    </div>
-</div>
+
 {% endblock %}

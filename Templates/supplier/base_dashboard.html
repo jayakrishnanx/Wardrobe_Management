@@ -59,7 +59,7 @@
 
             <li class="nav-section-label">Account</li>
             <li class="nav-item">
-                <form method="post" action="{% url 'logout' %}" id="logout-form-supplier" style="display: none;">
+                <form method="post" action="{% url 'user_logout' %}" id="logout-form-supplier" style="display: none;">
                     {% csrf_token %}
                 </form>
                 <a href="javascript:void(0)" onclick="document.getElementById('logout-form-supplier').submit();" class="nav-link-logout">

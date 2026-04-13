@@ -57,8 +57,19 @@ def recommend_outfit(request):
             recommendations = recommendations.none()
 
     # 🔹 Ensure accessories are recommended for the shown outfits
-    # (In case they were generated before this feature was enabled)
-    from .utils import recommend_accessories
+    # (In case they were generated before this feature was enabled or need refreshing)
+    from .utils import recommend_accessories, GET_CLOTHING_KEYWORDS
+    from .models import AccessoryRecommendation
+    from django.db.models import Q
+    
+    # Pre-emptive cleanup of any existing "clothing" accessory suggestions
+    clothing_q = Q()
+    for kw in GET_CLOTHING_KEYWORDS():
+        clothing_q |= Q(accessory__name__icontains=kw) | Q(accessory__category__icontains=kw)
+    
+    if clothing_q:
+        AccessoryRecommendation.objects.filter(clothing_q).delete()
+
     for rec in recommendations[:20]: # Only do it for the top ones to save time
         if not rec.accessory_recommendations.exists():
             recommend_accessories(rec, rec.top_item, rec.bottom_item)
