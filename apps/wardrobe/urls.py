@@ -8,6 +8,7 @@ urlpatterns = [
     path('add/', views.add_wardrobe, name='add_wardrobe'),
     path('add/bulk/', views.bulk_add_wardrobe, name='bulk_add_wardrobe'),
     path('delete/<int:item_id>/', views.delete_wardrobe, name='delete_wardrobe'),
+    path('delete/bulk/', views.bulk_delete_wardrobe, name='bulk_delete_wardrobe'),
 
     path('view/', views.view_clothes, name='view_clothes'),
     path('wear/<int:item_id>/', views.mark_as_worn, name='mark_as_worn'),

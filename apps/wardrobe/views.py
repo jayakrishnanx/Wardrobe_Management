@@ -42,47 +42,47 @@ def add_wardrobe(request: HttpRequest) -> HttpResponse:
 @role_required('user')
 def bulk_add_wardrobe(request: HttpRequest) -> HttpResponse:
     """
-    Handles adding multiple wardrobe items at once via a dynamic form.
+    Handles adding multiple wardrobe items for a single category at once via bulk image upload.
     """
-    from .models import Occasion, Season
+    from .models import Occasion, Season, Category
     categories = Category.objects.all()
-    occasions = Occasion.objects.all()
-    seasons = Season.objects.all()
 
     if request.method == 'POST':
-        # Determine how many items were submitted by checking indexed fields
-        index = 0
+        category_id = request.POST.get('category')
+        images = request.FILES.getlist('images')
+
+        if not category_id:
+            messages.error(request, "Please select a category.")
+            return render(request, 'user/bulk_add_wardrobe.html', {'categories': categories})
+            
+        if not images:
+            messages.error(request, "Please select at least one image.")
+            return render(request, 'user/bulk_add_wardrobe.html', {'categories': categories})
+
+        category = get_object_or_404(Category, id=category_id)
+        
+        # Get or create default occasion and season
+        occasion, _ = Occasion.objects.get_or_create(name='Casual')
+        season, _ = Season.objects.get_or_create(name='All Seasons')
+        
         items_created = 0
         errors = []
 
-        while f'item_type_{index}' in request.POST:
-            item_type = request.POST.get(f'item_type_{index}', '').strip()
-            category_id = request.POST.get(f'category_{index}')
-            occasion_id = request.POST.get(f'occasion_{index}')
-            season_id = request.POST.get(f'season_{index}')
-            color = request.POST.get(f'color_{index}', '').strip()
-            image = request.FILES.get(f'image_{index}')
-
-            if not item_type:
-                index += 1
-                continue  # Skip empty rows
-
+        for image in images:
             try:
+                item_type = f"{category.name} Item"
                 item = WardrobeItem(
                     user=request.user,
                     item_type=item_type,
-                    category_id=int(category_id),
-                    occasion_id=int(occasion_id),
-                    season_id=int(season_id),
-                    color=color if color else None,
+                    category=category,
+                    occasion=occasion,
+                    season=season,
                     image=image,
                 )
                 item.save()
                 items_created += 1
             except Exception as e:
-                errors.append(f"Row {index + 1}: {str(e)}")
-
-            index += 1
+                errors.append(f"Error saving an image: {str(e)}")
 
         if items_created > 0:
             # Invalidate recommendations when wardrobe changes
@@ -98,8 +98,6 @@ def bulk_add_wardrobe(request: HttpRequest) -> HttpResponse:
 
     context = {
         'categories': categories,
-        'occasions': occasions,
-        'seasons': seasons,
     }
     return render(request, 'user/bulk_add_wardrobe.html', context)
 
@@ -115,6 +113,17 @@ def delete_wardrobe(request: HttpRequest, item_id: int) -> HttpResponse:
     # Invalidate recommendations when wardrobe changes
     OutfitRecommendation.objects.filter(user=request.user).delete()
     
+    return redirect('wardrobe_home')
+
+@role_required('user')
+def bulk_delete_wardrobe(request: HttpRequest) -> HttpResponse:
+    if request.method == 'POST':
+        item_ids = request.POST.getlist('item_ids')
+        if item_ids:
+            WardrobeItem.objects.filter(id__in=item_ids, user=request.user).delete()
+            # Invalidate recommendations when wardrobe changes
+            OutfitRecommendation.objects.filter(user=request.user).delete()
+            messages.success(request, f'Successfully deleted {len(item_ids)} item(s) from your wardrobe.')
     return redirect('wardrobe_home')
 
 

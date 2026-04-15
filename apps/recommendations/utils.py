@@ -285,11 +285,14 @@ def recommend_accessories(outfit, top, bottom):
 # ==========================================================
 # 🤖 AI CHATBOT INTEGRATION (GROQ / GEMINI)
 # ==========================================================
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
 import google.generativeai as genai
 from groq import Groq
 import os
 from dotenv import load_dotenv
 import json
+
 
 def get_ai_response(system_instruction, use_json=True):
     """

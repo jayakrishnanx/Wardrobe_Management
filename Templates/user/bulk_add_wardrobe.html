@@ -6,7 +6,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h2 class="page-title">📦 Bulk Add Items</h2>
-                <p class="page-subtitle">Add multiple wardrobe items at once — fill in each row and submit.</p>
+                <p class="page-subtitle">Add multiple wardrobe items at once by uploading several images for a category.</p>
             </div>
             <a href="{% url 'add_wardrobe' %}" class="btn btn-secondary">+ Single Add</a>
         </div>
@@ -15,183 +15,48 @@
     <form method="post" enctype="multipart/form-data" id="bulkForm">
         {% csrf_token %}
 
-        <div id="items-container">
-            <!-- Row 0 (template row) -->
-            <div class="card fade-in bulk-item-row" data-index="0" style="margin-bottom: 1.5rem; border-left: 4px solid var(--primary-color);">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h4 class="m-0" style="color: var(--primary-color);">
-                        <span class="row-number">Item #1</span>
-                    </h4>
-                    <button type="button" class="btn btn-soft-danger btn-sm remove-row-btn" onclick="removeRow(this)" style="display: none;">
-                        ✕ Remove
-                    </button>
+        <div class="card p-4 fade-in" style="margin-bottom: 1.5rem; border-left: 4px solid var(--primary-color);">
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label class="form-label">Category *</label>
+                    <select name="category" class="form-control" required>
+                        <option value="">Select category</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
-
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
-                    <div class="form-group">
-                        <label class="form-label">Item Name *</label>
-                        <input type="text" name="item_type_0" class="form-control" placeholder="e.g., Blue Shirt" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Category *</label>
-                        <select name="category_0" class="form-control" required>
-                            <option value="">Select category</option>
-                            {% for cat in categories %}
-                            <option value="{{ cat.id }}">{{ cat.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Occasion *</label>
-                        <select name="occasion_0" class="form-control" required>
-                            <option value="">Select occasion</option>
-                            {% for occ in occasions %}
-                            <option value="{{ occ.id }}">{{ occ.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Season *</label>
-                        <select name="season_0" class="form-control" required>
-                            <option value="">Select season</option>
-                            {% for s in seasons %}
-                            <option value="{{ s.id }}">{{ s.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Color</label>
-                        <input type="text" name="color_0" class="form-control" placeholder="Optional">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Image</label>
-                        <input type="file" name="image_0" class="form-control" accept="image/*">
-                    </div>
+                <div class="col-md-6 form-group">
+                    <label class="form-label">Images (Bulk Upload) *</label>
+                    <input type="file" name="images" class="form-control" accept="image/*" multiple required onchange="updateImageCount(this)">
+                    <small class="text-muted d-block mt-2" id="image-count-label">You can select multiple images at once.</small>
                 </div>
             </div>
-        </div>
-
-        <div class="d-flex gap-3 align-items-center mb-4 flex-wrap">
-            <button type="button" class="btn btn-secondary" onclick="addRow()" id="addRowBtn">
-                ➕ Add Another Item
-            </button>
-            <span class="text-muted small" id="item-count-label">1 item ready</span>
-        </div>
-
-        <div class="form-actions" style="display: flex; gap: 1rem;">
-            <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
-                📦 Add All Items
-            </button>
-            <a href="{% url 'wardrobe_home' %}" class="btn btn-secondary btn-block">Cancel</a>
+            <div class="form-actions mt-4 text-center" style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-primary btn-block px-5" id="submitBtn">
+                    📦 Add Items
+                </button>
+                <a href="{% url 'wardrobe_home' %}" class="btn btn-secondary btn-block mt-2">Cancel</a>
+            </div>
         </div>
     </form>
 </div>
 
-<style>
-    .bulk-item-row {
-        transition: all 0.3s ease;
-        position: relative;
-    }
-    .bulk-item-row:hover {
-        box-shadow: var(--shadow-md);
-    }
-    .bulk-item-row.removing {
-        opacity: 0;
-        transform: translateX(-30px);
-        max-height: 0;
-        margin-bottom: 0 !important;
-        padding: 0 !important;
-        overflow: hidden;
-        border: none;
-    }
-    @keyframes slideIn {
-        from { opacity: 0; transform: translateY(15px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    .bulk-item-row.new-row {
-        animation: slideIn 0.35s ease forwards;
-    }
-</style>
-
 <script>
-    let rowCount = 1;
-
-    function updateLabels() {
-        const rows = document.querySelectorAll('.bulk-item-row:not(.removing)');
-        rows.forEach((row, i) => {
-            row.querySelector('.row-number').textContent = `Item #${i + 1}`;
-            // Show remove button only if more than 1 row
-            const removeBtn = row.querySelector('.remove-row-btn');
-            removeBtn.style.display = rows.length > 1 ? 'inline-flex' : 'none';
-        });
-        const count = rows.length;
-        document.getElementById('item-count-label').textContent = `${count} item${count > 1 ? 's' : ''} ready`;
-        document.getElementById('submitBtn').textContent = `📦 Add ${count > 1 ? 'All ' + count + ' Items' : 'Item'}`;
+    function updateImageCount(input) {
+        const count = input.files ? input.files.length : 0;
+        const label = document.getElementById('image-count-label');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        if (count > 0) {
+            label.textContent = `${count} image${count > 1 ? 's' : ''} selected.`;
+            label.style.color = "var(--primary-color)";
+            submitBtn.textContent = `📦 Add ${count} Item${count > 1 ? 's' : ''}`;
+        } else {
+            label.textContent = "You can select multiple images at once.";
+            label.style.color = "";
+            submitBtn.textContent = "📦 Add Items";
+        }
     }
-
-    function addRow() {
-        const container = document.getElementById('items-container');
-        const idx = rowCount;
-        rowCount++;
-
-        const categoryOptions = `<option value="">Select category</option>{% for cat in categories %}<option value="{{ cat.id }}">{{ cat.name }}</option>{% endfor %}`;
-        const occasionOptions = `<option value="">Select occasion</option>{% for occ in occasions %}<option value="{{ occ.id }}">{{ occ.name }}</option>{% endfor %}`;
-        const seasonOptions = `<option value="">Select season</option>{% for s in seasons %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}`;
-
-        const html = `
-        <div class="card bulk-item-row new-row" data-index="${idx}" style="margin-bottom: 1.5rem; border-left: 4px solid var(--primary-color);">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h4 class="m-0" style="color: var(--primary-color);"><span class="row-number">Item</span></h4>
-                <button type="button" class="btn btn-soft-danger btn-sm remove-row-btn" onclick="removeRow(this)">✕ Remove</button>
-            </div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
-                <div class="form-group">
-                    <label class="form-label">Item Name *</label>
-                    <input type="text" name="item_type_${idx}" class="form-control" placeholder="e.g., Blue Shirt" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Category *</label>
-                    <select name="category_${idx}" class="form-control" required>${categoryOptions}</select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Occasion *</label>
-                    <select name="occasion_${idx}" class="form-control" required>${occasionOptions}</select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Season *</label>
-                    <select name="season_${idx}" class="form-control" required>${seasonOptions}</select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Color</label>
-                    <input type="text" name="color_${idx}" class="form-control" placeholder="Optional">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Image</label>
-                    <input type="file" name="image_${idx}" class="form-control" accept="image/*">
-                </div>
-            </div>
-        </div>`;
-
-        container.insertAdjacentHTML('beforeend', html);
-        updateLabels();
-
-        // Scroll to the new row
-        const newRow = container.lastElementChild;
-        newRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-
-    function removeRow(btn) {
-        const row = btn.closest('.bulk-item-row');
-        // Remove required from inputs so they don't block form submission
-        row.querySelectorAll('[required]').forEach(el => el.removeAttribute('required'));
-        row.classList.add('removing');
-        setTimeout(() => {
-            row.remove();
-            updateLabels();
-        }, 300);
-    }
-
-    // Initial label update
-    updateLabels();
 </script>
 {% endblock %}
